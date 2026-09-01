@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Social Orchestrator - TikTok Tracking</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-container": "#006663",
+                    "on-surface": "#191c1e",
+                    "on-secondary-container": "#fffbff",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "surface-variant": "#e1e2e4",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#00ebe5",
+                    "on-secondary-fixed": "#40000c",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#c4d2ff",
+                    "on-error-container": "#93000a",
+                    "secondary": "#ba0035",
+                    "on-background": "#191c1e",
+                    "primary": "#003d9b",
+                    "surface-container-low": "#f3f4f6",
+                    "primary-fixed": "#dae2ff",
+                    "outline-variant": "#c3c6d6",
+                    "tertiary-fixed-dim": "#00ddd8",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "on-primary-fixed": "#001848",
+                    "on-secondary-fixed-variant": "#920027",
+                    "outline": "#737685",
+                    "surface-container-high": "#e7e8ea",
+                    "on-tertiary-fixed": "#00201f",
+                    "secondary-container": "#e51146",
+                    "primary-container": "#0052cc",
+                    "surface-container-highest": "#e1e2e4",
+                    "tertiary": "#004c4a",
+                    "inverse-surface": "#2e3132",
+                    "tertiary-fixed": "#35fbf5",
+                    "background": "#f8f9fb",
+                    "secondary-fixed-dim": "#ffb3b6",
+                    "surface": "#f8f9fb",
+                    "inverse-on-surface": "#f0f1f3",
+                    "surface-dim": "#d9dadc",
+                    "surface-container": "#edeef0",
+                    "secondary-fixed": "#ffdada",
+                    "surface-bright": "#f8f9fb",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#434654",
+                    "surface-tint": "#0c56d0",
+                    "inverse-primary": "#b2c5ff",
+                    "on-primary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#00504d",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "card-padding": "16px",
+                    "margin-page": "24px",
+                    "table-cell-padding": "12px 16px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "data-mono": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "label-caps": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "headline-md": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-sm": [
+                            "13px",
+                            {
+                                    "lineHeight": "18px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-mono": [
+                            "13px",
+                            {
+                                    "lineHeight": "18px",
+                                    "letterSpacing": "0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d6;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737685;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md overflow-hidden">
+<!-- App Container -->
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="bg-on-surface h-screen w-64 fixed left-0 top-0 border-r border-outline-variant flex flex-col overflow-y-auto z-50">
+<!-- Brand / Header -->
+<div class="p-6">
+<h1 class="text-headline-lg font-headline-lg text-white mb-1">Social Orchestrator</h1>
+<p class="text-label-caps font-label-caps text-surface-variant">Admin Console</p>
+</div>
+<!-- CTA -->
+<div class="px-4 pb-6">
+<button class="w-full py-2 bg-primary text-on-primary rounded font-body-md text-body-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Connect Account
+                </button>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 flex flex-col gap-1 px-2">
+<!-- Inactive Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors rounded-r-full hover:text-on-surface" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<!-- Inactive Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors rounded-r-full hover:text-on-surface" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-body-md text-body-md">Instagram Accounts</span>
+</a>
+<!-- Inactive Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors rounded-r-full hover:text-on-surface" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-body-md text-body-md">Content Insights</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-l-4 border-primary rounded-r-full" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="link">link</span>
+<span class="font-body-md text-body-md font-bold">TikTok Tracking</span>
+</a>
+<!-- Inactive Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors rounded-r-full hover:text-on-surface" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-body-md text-body-md">Job Monitoring</span>
+</a>
+</nav>
+<!-- Footer Links -->
+<div class="mt-auto p-2 border-t border-outline-variant/30 pt-4 mb-4">
+<a class="flex items-center gap-3 px-4 py-2 text-surface-variant hover:bg-surface-container-high transition-colors rounded-r-full hover:text-on-surface" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-surface-variant hover:bg-surface-container-high transition-colors rounded-r-full hover:text-on-surface" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-body-md text-body-md">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 ml-64 h-screen bg-background">
+<!-- TopNavBar -->
+<header class="bg-surface-container-lowest border-b border-outline-variant docked full-width top-0 sticky z-40 flex justify-between items-center h-16 px-margin-page w-full">
+<!-- Search -->
+<div class="flex items-center bg-surface-container-low rounded px-3 py-1.5 w-64 border border-outline-variant focus-within:border-primary transition-colors">
+<span class="material-symbols-outlined text-outline mr-2 text-sm">search</span>
+<input class="bg-transparent border-none outline-none w-full text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:ring-0 p-0" placeholder="Search orchestrator..." type="text"/>
+</div>
+<!-- Actions & Profile -->
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-all active:opacity-100 opacity-80">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container rounded-full p-2 transition-all active:opacity-100 opacity-80">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+<div class="w-px h-6 bg-outline-variant mx-2"></div>
+<button class="flex items-center gap-2 hover:bg-surface-container p-1 pr-3 rounded-full transition-colors border border-transparent hover:border-outline-variant">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-headline-md text-headline-md overflow-hidden">
+<img alt="Administrator profile picture" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate system administrator in a brightly lit modern office setting. Sharp focus, realistic style, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGjhjmxRehLjTlOyXREnS0Q3yMHMPZp4jj4c_aL89427VifxmdcNd3F2ILXyZMEiljJ11BKoFvUaPF9bkrGnTWEluzVCuLa0-drfVnL3lxNva594WTds1H-UlnqUqxBnyL7fHGsLyjSAUtzz0eJd8Vh_1aaqn5BKo1x4Lfni1heJ83-zIcfAEml3i7aq_ZWtDh3Rwx_GyEwQqeJEpBWYroYNVyKEnaa-Qk1NXoEUgrIscyJx-Kvhwf"/>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Admin User</span>
+<span class="material-symbols-outlined text-sm text-on-surface-variant">expand_more</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<div class="flex-1 overflow-y-auto p-margin-page">
+<div class="max-w-[1600px] mx-auto w-full flex flex-col gap-gutter">
+<!-- Page Header & Global Actions -->
+<div class="flex justify-between items-end mb-2">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">TikTok Tracking Modules</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Monitor and orchestrate metrics for individual TikTok video links.</p>
+</div>
+<button class="bg-primary text-on-primary font-body-md text-body-md px-4 py-2 rounded shadow hover:bg-primary-container transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add_link</span>
+                            Add TikTok Link
+                        </button>
+</div>
+<!-- Filter / Utility Bar -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded p-3 flex justify-between items-center">
+<div class="flex gap-4 items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">filter_list</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">FILTER BY STATUS:</span>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded-full border border-primary text-primary font-body-sm text-body-sm bg-primary-fixed/20 hover:bg-primary-fixed/40 transition-colors">All Links</button>
+<button class="px-3 py-1 rounded-full border border-outline-variant text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container transition-colors">Active Scrape</button>
+<button class="px-3 py-1 rounded-full border border-outline-variant text-on-surface-variant font-body-sm text-body-sm hover:bg-surface-container transition-colors">Errors</button>
+</div>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                            Showing <strong>12</strong> tracked entities
+                        </div>
+</div>
+<!-- Tracking Table Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col">
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant w-12 text-center">Status</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant">Creator Handle</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant">Video ID / Link</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant">Data Source</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant text-right">Total Views</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant text-right">Engagement</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant">Last Snapshot</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant w-32">Notes</th>
+<th class="py-3 px-4 font-label-caps text-label-caps text-on-surface-variant text-center w-28">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant bg-surface-container-lowest">
+<!-- Row 1: Healthy Scrape -->
+<tr class="hover:bg-surface-container-low transition-colors group h-12">
+<td class="py-2 px-4 text-center">
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center mx-auto" title="Scraper Operational">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</td>
+<td class="py-2 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant overflow-hidden">
+<img alt="avatar" class="w-full h-full object-cover" data-alt="A small circular avatar placeholder showing a colorful geometric pattern, abstract minimalist design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7v85W9NvXkPEgayIkN3SAjGbpin_SjNtiyOPncQn2UNGYfhMkplSef6PoxnFQhPYP7SlqwrybV40eXFhRXr0S_oZrdC9WdEZZHcB7BWCURvZY8c4xWUa6vV8RGIMfmYU1_BNkngq28BIENgF6Dsxygm_bsYA3uFbAlsjUixt2FmptnjG5xz691PRAU3DIPWUqtLKNMq96Bc30Kngg67L_YIdhF4FoRDtzwuKYOQgp73dS7IMUTj9L"/>
+</div>
+<span class="font-body-md text-body-md font-medium text-on-surface">@techgadgets_daily</span>
+</div>
+</td>
+<td class="py-2 px-4">
+<a class="font-data-mono text-data-mono text-primary hover:underline flex items-center gap-1 w-max" href="#">
+                                                7348921045829103
+                                                <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</td>
+<td class="py-2 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-label-caps tracking-wide bg-surface-container-highest text-on-surface-variant border border-outline-variant">
+                                                SCRAPER
+                                            </span>
+</td>
+<td class="py-2 px-4 text-right">
+<div class="font-data-mono text-data-mono text-on-surface">1,245,890</div>
+<div class="text-[10px] text-tertiary flex items-center justify-end gap-0.5 mt-0.5 font-medium">
+<span class="material-symbols-outlined text-[10px]">arrow_upward</span> 12.4%
+                                            </div>
+</td>
+<td class="py-2 px-4 text-right">
+<div class="flex justify-end gap-3 text-on-surface-variant">
+<div class="flex items-center gap-1" title="Likes">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-data-mono text-data-mono">45K</span>
+</div>
+<div class="flex items-center gap-1" title="Shares">
+<span class="material-symbols-outlined text-[14px]">share</span>
+<span class="font-data-mono text-data-mono">3.2K</span>
+</div>
+</div>
+</td>
+<td class="py-2 px-4">
+<div class="font-data-mono text-data-mono text-on-surface-variant">Oct 24, 14:32 UTC</div>
+</td>
+<td class="py-2 px-4">
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate max-w-[120px]" title="Campaign Q4 Promo - Phase 1">Campaign Q4 P...</div>
+</td>
+<td class="py-2 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">monitoring</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="Force Re-sync">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="Edit Notes">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: OAuth Active -->
+<tr class="hover:bg-surface-container-low transition-colors group h-12">
+<td class="py-2 px-4 text-center">
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center mx-auto" title="OAuth Active">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</td>
+<td class="py-2 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant overflow-hidden">
+<img alt="avatar" class="w-full h-full object-cover" data-alt="A small circular avatar placeholder showing a modern gradient background in blue and purple tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD7OTxI-C0cK8l5i5a5xhtVZ8CJnzLIw6tp1We5ulQCePsMBBfkU4Cl3X3KV-92X4f6Atk9IwoTekyyQDygWln2f0bYkWqTGKeKDIEGTnjre031_uo-WVkVxD1UNKtsYUVSafnxITENLkfVAsGk-9E3fMNAjjmvdveH_7pnxtKqYfKEsbQnEPmr0mCaBYBy7v5BrvethcoUHM7W0VWE8ISsfidvSvlSHuVo9v3SX2Ni7ZO3b-vAdJ3"/>
+</div>
+<span class="font-body-md text-body-md font-medium text-on-surface">@brand_official</span>
+</div>
+</td>
+<td class="py-2 px-4">
+<a class="font-data-mono text-data-mono text-primary hover:underline flex items-center gap-1 w-max" href="#">
+                                                7349112234500911
+                                                <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</td>
+<td class="py-2 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-label-caps tracking-wide bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                                OAUTH API
+                                            </span>
+</td>
+<td class="py-2 px-4 text-right">
+<div class="font-data-mono text-data-mono text-on-surface">3,012,400</div>
+<div class="text-[10px] text-tertiary flex items-center justify-end gap-0.5 mt-0.5 font-medium">
+<span class="material-symbols-outlined text-[10px]">arrow_upward</span> 4.1%
+                                            </div>
+</td>
+<td class="py-2 px-4 text-right">
+<div class="flex justify-end gap-3 text-on-surface-variant">
+<div class="flex items-center gap-1" title="Likes">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-data-mono text-data-mono">120K</span>
+</div>
+<div class="flex items-center gap-1" title="Shares">
+<span class="material-symbols-outlined text-[14px]">share</span>
+<span class="font-data-mono text-data-mono">15K</span>
+</div>
+</div>
+</td>
+<td class="py-2 px-4">
+<div class="font-data-mono text-data-mono text-on-surface-variant">Oct 24, 14:35 UTC</div>
+</td>
+<td class="py-2 px-4">
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate max-w-[120px]" title="Main Brand Account Track">Main Brand Acc...</div>
+</td>
+<td class="py-2 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">monitoring</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="Force Re-sync">
+<span class="material-symbols-outlined text-[18px]">sync</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="Edit Notes">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Error State -->
+<tr class="hover:bg-surface-container-low transition-colors group h-12 bg-error-container/10">
+<td class="py-2 px-4 text-center">
+<div class="w-6 h-6 rounded-full bg-error-container text-on-error-container flex items-center justify-center mx-auto" title="Scrape Failed - Rate Limit">
+<span class="material-symbols-outlined text-[14px]">priority_high</span>
+</div>
+</td>
+<td class="py-2 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant overflow-hidden">
+<span class="material-symbols-outlined text-outline-variant p-1">person</span>
+</div>
+<span class="font-body-md text-body-md font-medium text-on-surface">@indie_creator</span>
+</div>
+</td>
+<td class="py-2 px-4">
+<a class="font-data-mono text-data-mono text-primary hover:underline flex items-center gap-1 w-max" href="#">
+                                                7348001122334455
+                                                <span class="material-symbols-outlined text-[12px]">open_in_new</span>
+</a>
+</td>
+<td class="py-2 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-label-caps tracking-wide bg-surface-container-highest text-on-surface-variant border border-outline-variant">
+                                                SCRAPER
+                                            </span>
+</td>
+<td class="py-2 px-4 text-right">
+<div class="font-data-mono text-data-mono text-outline line-through">--</div>
+<div class="text-[10px] text-error flex items-center justify-end gap-0.5 mt-0.5 font-medium">
+<span class="material-symbols-outlined text-[10px]">warning</span> Sync Error
+                                            </div>
+</td>
+<td class="py-2 px-4 text-right">
+<div class="flex justify-end gap-3 text-outline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">favorite</span>
+<span class="font-data-mono text-data-mono">--</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share</span>
+<span class="font-data-mono text-data-mono">--</span>
+</div>
+</div>
+</td>
+<td class="py-2 px-4">
+<div class="font-data-mono text-data-mono text-on-surface-variant">Oct 23, 08:12 UTC</div>
+</td>
+<td class="py-2 px-4">
+<div class="font-body-sm text-body-sm text-on-surface-variant truncate max-w-[120px]" title="Affiliate link #3">Affiliate link #3</div>
+</td>
+<td class="py-2 px-4 text-center">
+<div class="flex items-center justify-center gap-1 opacity-100 group-hover:opacity-100 transition-opacity">
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="View History">
+<span class="material-symbols-outlined text-[18px]">monitoring</span>
+</button>
+<button class="p-1 rounded text-error hover:bg-error-container transition-colors" title="Force Re-sync">
+<span class="material-symbols-outlined text-[18px]">sync_problem</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-primary transition-colors" title="Edit Notes">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="bg-surface-container-low border-t border-outline-variant p-3 flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Rows per page: <strong>50</strong></span>
+<div class="flex items-center gap-2">
+<span class="font-body-sm text-body-sm text-on-surface-variant mr-4">1-3 of 12</span>
+<button class="p-1 rounded text-outline hover:bg-surface-variant hover:text-on-surface disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-1 rounded text-on-surface-variant hover:bg-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

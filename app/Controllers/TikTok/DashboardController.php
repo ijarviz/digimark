@@ -25,6 +25,7 @@ class DashboardController extends BaseController
 
         return view('layouts/main', [
             'title'       => 'TikTok Metrics',
+            'subtitle'    => 'Ringkasan performa harian untuk setiap link TikTok yang dilacak.',
             'activeNav'   => 'tiktok-dashboard',
             'contentView' => 'tiktok/dashboard',
             'contentData' => ['links' => $links, 'date' => $date],

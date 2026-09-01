@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Instagram Content Insights - Social Orchestrator</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#006663",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#fffbff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "surface-variant": "#e1e2e4",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#00ebe5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#c4d2ff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#ba0035",
+                        "on-background": "#191c1e",
+                        "primary": "#003d9b",
+                        "surface-container-low": "#f3f4f6",
+                        "primary-fixed": "#dae2ff",
+                        "outline-variant": "#c3c6d6",
+                        "tertiary-fixed-dim": "#00ddd8",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "on-primary-fixed": "#001848",
+                        "on-secondary-fixed-variant": "#920027",
+                        "outline": "#737685",
+                        "surface-container-high": "#e7e8ea",
+                        "on-tertiary-fixed": "#00201f",
+                        "secondary-container": "#e51146",
+                        "primary-container": "#0052cc",
+                        "surface-container-highest": "#e1e2e4",
+                        "tertiary": "#004c4a",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-fixed": "#35fbf5",
+                        "background": "#f8f9fb",
+                        "secondary-fixed-dim": "#ffb3b6",
+                        "surface": "#f8f9fb",
+                        "inverse-on-surface": "#f0f1f3",
+                        "surface-dim": "#d9dadc",
+                        "surface-container": "#edeef0",
+                        "secondary-fixed": "#ffdada",
+                        "surface-bright": "#f8f9fb",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#434654",
+                        "surface-tint": "#0c56d0",
+                        "inverse-primary": "#b2c5ff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#00504d",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    spacing: {
+                        unit: "4px",
+                        "card-padding": "16px",
+                        "margin-page": "24px",
+                        "table-cell-padding": "12px 16px",
+                        "gutter": "16px"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-md": ["18px", { lineHeight: "24px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "body-sm": ["13px", { lineHeight: "18px", fontWeight: "400" }],
+                        "data-mono": ["13px", { lineHeight: "18px", letterSpacing: "0.02em", fontWeight: "500" }],
+                        "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "600" }],
+                        "label-caps": ["11px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex antialiased">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant dark:border-outline bg-on-surface dark:bg-surface-container-lowest flex flex-col h-full overflow-y-auto z-50">
+<div class="p-6">
+<h1 class="text-headline-lg font-headline-lg font-bold text-white dark:text-primary">Social Orchestrator</h1>
+<p class="text-body-sm font-body-sm text-surface-variant mt-1">Admin Console</p>
+</div>
+<nav class="flex-1 mt-4">
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors text-body-md font-body-md scale-95 active:scale-100 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                        Dashboard
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors text-body-md font-body-md scale-95 active:scale-100 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+                        Instagram Accounts
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-l-4 border-primary text-body-md font-body-md scale-95 active:scale-100 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="analytics" data-weight="fill" style="font-variation-settings: 'FILL' 1;">analytics</span>
+                        Content Insights
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors text-body-md font-body-md scale-95 active:scale-100 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="link">link</span>
+                        TikTok Tracking
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors text-body-md font-body-md scale-95 active:scale-100 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                        Job Monitoring
+                    </a>
+</li>
+</ul>
+</nav>
+<div class="p-4 mt-auto">
+<button class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary py-2 px-4 rounded-DEFAULT text-body-sm font-body-sm hover:bg-primary/90 transition-colors">
+                Connect Account
+            </button>
+</div>
+<div class="mt-4 border-t border-outline-variant/30 pt-2 pb-4">
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-surface-variant hover:bg-surface-container-high transition-colors text-body-sm font-body-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+                        Settings
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-2 text-surface-variant hover:bg-surface-container-high transition-colors text-body-sm font-body-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+                        Support
+                    </a>
+</li>
+</ul>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col ml-64 min-w-0">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center h-16 px-margin-page w-full docked top-0 sticky z-40 border-b border-outline-variant bg-surface-container-lowest dark:bg-surface-dim flat no shadows">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" data-icon="search">search</span>
+<input class="h-[36px] pl-10 pr-4 rounded-DEFAULT border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary text-body-sm font-body-sm w-64 outline-none" placeholder="Search..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-full p-2 transition-all opacity-80 active:opacity-100">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-full p-2 transition-all opacity-80 active:opacity-100">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container-high rounded-full p-2 transition-all opacity-80 active:opacity-100 ml-2">
+<img alt="Administrator profile picture" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A professional headshot of a corporate administrator, female, wearing glasses, well-lit studio lighting, neutral background, sharp focus, modern corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCagxAoXeLZv9sH4Vg1DKhOTWEuKqZFbHVHOUmaGKqHF_D9nRtfi4LFQTOLKdGKJnHwFURZtjB3iw8WM2G1soB3Te3RLWogtU1ZHqa1EOT336qwt6hihJkhhZJYRzzwabq0jTLvAxb3PI5jqkowMEpmZtnobdTpnS9fBmbGPEQfrmYekubI6_4O9ZoRwYPHK48h_6HH8tu3YqkD9FAFuCepHvqY10iQqrew1rgzLG-oaUmFYr_NLS5h"/>
+</button>
+</div>
+</header>
+<!-- Canvas Area -->
+<main class="flex-1 p-margin-page overflow-x-hidden">
+<!-- Page Header & Account Switcher -->
+<div class="flex justify-between items-end mb-gutter">
+<div>
+<h2 class="text-headline-lg font-headline-lg text-on-surface">Instagram Content Insights</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">Analyze cross-platform performance metrics and content telemetry.</p>
+</div>
+<div class="flex flex-col gap-1 items-end">
+<label class="text-label-caps font-label-caps text-on-surface-variant">Active Account</label>
+<select class="h-[36px] border border-outline-variant rounded-DEFAULT bg-surface-container-lowest text-body-sm font-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary min-w-[200px] outline-none px-3">
+<option value="brand1">@GlobalTech_Official</option>
+<option class="italic text-on-surface-variant" value="add">+ Add Account</option>
+</select>
+</div>
+</div>
+<!-- Connect Status Header -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding flex justify-between items-center mb-gutter shadow-sm">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-[#E1306C]/10 flex items-center justify-center text-[#E1306C]">
+<span class="material-symbols-outlined text-[24px]">photo_camera</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-body-md font-body-md font-semibold text-on-surface">Connected to @GlobalTech_Official</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#36B37E]/10 text-[#006644] text-[10px] font-bold tracking-wider uppercase">
+<span class="w-1.5 h-1.5 rounded-full bg-[#36B37E]"></span>
+                                Active Sync
+                            </span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                            Token Status: <span class="text-secondary font-medium">H-12 days</span> until expiry
+                        </p>
+</div>
+</div>
+<button class="h-[36px] px-4 rounded-DEFAULT border border-outline-variant bg-surface hover:bg-surface-container-high transition-colors text-body-sm font-body-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                    Refresh Token
+                </button>
+</div>
+<!-- Filter Bar -->
+<div class="flex gap-4 mb-gutter">
+<div class="flex-1">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-[36px] pl-9 pr-4 rounded-DEFAULT border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary text-body-sm font-body-sm outline-none" placeholder="Search captions..." type="text"/>
+</div>
+</div>
+<div class="w-48">
+<select class="w-full h-[36px] border border-outline-variant rounded-DEFAULT bg-surface-container-lowest text-body-sm font-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none px-3">
+<option value="all">All Media Types</option>
+<option value="image">Image</option>
+<option value="video">Video</option>
+<option value="carousel">Carousel</option>
+<option value="reels">Reels</option>
+</select>
+</div>
+<div class="w-64">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">calendar_today</span>
+<input class="w-full h-[36px] pl-9 pr-4 rounded-DEFAULT border border-outline-variant bg-surface-container-lowest focus:border-primary focus:ring-1 focus:ring-primary text-body-sm font-body-sm outline-none cursor-pointer" readonly="" type="text" value="Oct 01, 2023 - Oct 31, 2023"/>
+</div>
+</div>
+</div>
+<!-- Content Table -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface border-b border-outline-variant text-label-caps font-label-caps text-on-surface-variant uppercase tracking-wider">
+<tr>
+<th class="p-table-cell-padding w-12 font-semibold">Media</th>
+<th class="p-table-cell-padding font-semibold">Caption</th>
+<th class="p-table-cell-padding font-semibold">Type</th>
+<th class="p-table-cell-padding font-semibold">Posted</th>
+<th class="p-table-cell-padding text-right font-semibold">Reach</th>
+<th class="p-table-cell-padding text-right font-semibold">Imp.</th>
+<th class="p-table-cell-padding text-right font-semibold">Likes</th>
+<th class="p-table-cell-padding text-right font-semibold">Comm.</th>
+<th class="p-table-cell-padding text-right font-semibold">Shares</th>
+<th class="p-table-cell-padding text-center font-semibold">Sync</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm text-on-surface">
+<!-- Row 1 -->
+<tr class="h-[48px] border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="p-table-cell-padding">
+<div class="w-8 h-8 rounded border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A high-quality minimalist tech product shot of a sleek modern laptop on a clean white desk, sharp focus, cool studio lighting, corporate tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2LetU8RsIUewefGGcjKgvjXDYm7EQzXHyM2P7O1-MxgfnYY5stpCfewXuj5yEcTAPonmtg6LiWvoaUWGz0syR1PMf1TTn9adEs8mnboCXt6ayD8hAPBYxE7d7ZkwJKnMFXrTdkAs1AER3tqtz48MG_xe-Hc0xygYI1zP8aHPatmM0o9nH4zn7lcwcfKTUdKKdgFNAHS7L38e7SiwQEuJcSsqnHOzcvL2vZx0nV1AG-PewzWQvyn2m"/>
+</div>
+</td>
+<td class="p-table-cell-padding max-w-[200px]">
+<div class="truncate text-on-surface font-medium" title="Unveiling our latest enterprise hardware solutions at #TechSummit2023. Link in bio to learn more about our new architecture.">
+                                        Unveiling our latest enterprise hardware solutions at #TechSummit2023...
+                                    </div>
+</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">view_carousel</span> Carousel
+                                    </span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant">Oct 28, 14:30</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">45.2k</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">62.1k</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono text-primary">3,241</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">142</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">89</td>
+<td class="p-table-cell-padding text-center">
+<span class="material-symbols-outlined text-[18px] text-[#36B37E]" title="Synced successfully">check_circle</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-[48px] border-b border-outline-variant hover:bg-surface-container-low transition-colors group bg-surface-container-lowest/50">
+<td class="p-table-cell-padding">
+<div class="w-8 h-8 rounded border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A candid photo of a diverse engineering team collaborating around a whiteboard in a modern glass-walled office, bright ambient daylight, professional corporate culture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9xv8HpAmL6LToqc_ZQmz1UEtNA7yeFVlCr_ETzD-1gR8l8IQV0-9M2YmGTeB8ZEP_2MROUnu7pcFiV7fHcF-F7to4kiC3IQ__9tBbtn4kkPDMvYcv4HkVuScqXCrbkCjzOFDf4qVecUt9HrdcKmX7gOsdJQbNdtGbAjSU_p95VMZlA4SUA2HO4WIcMIDIXW_Cz4BXCZ1kEt3ll8BMBPnJBY_rZiM1j7oY5NeiA0ywAIy4zcTtM--W"/>
+</div>
+</td>
+<td class="p-table-cell-padding max-w-[200px]">
+<div class="truncate text-on-surface font-medium" title="Meet the team behind the new API gateway. Our engineers have been working tirelessly. #EngineeringCulture #BehindTheScenes">
+                                        Meet the team behind the new API gateway. Our engineers have...
+                                    </div>
+</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">image</span> Image
+                                    </span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant">Oct 26, 09:15</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">28.4k</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">31.0k</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">1,890</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">56</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">12</td>
+<td class="p-table-cell-padding text-center">
+<span class="material-symbols-outlined text-[18px] text-[#36B37E]" title="Synced successfully">check_circle</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-[48px] border-b border-outline-variant hover:bg-surface-container-low transition-colors group">
+<td class="p-table-cell-padding">
+<div class="w-8 h-8 rounded border border-outline-variant overflow-hidden">
+<div class="w-full h-full bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">play_circle</span>
+</div>
+</div>
+</td>
+<td class="p-table-cell-padding max-w-[200px]">
+<div class="truncate text-on-surface font-medium" title="Quick tutorial on how to implement the new OAuth flow using our updated SDKs. #DevTools #Tutorial">
+                                        Quick tutorial on how to implement the new OAuth flow using...
+                                    </div>
+</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">movie</span> Reels
+                                    </span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant">Oct 24, 16:45</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">112.8k</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">145.2k</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono text-primary font-bold">8,452</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">421</td>
+<td class="p-table-cell-padding text-right font-data-mono text-data-mono">890</td>
+<td class="p-table-cell-padding text-center">
+<span class="material-symbols-outlined text-[18px] text-secondary" title="Sync failed - API limits reached">error</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="px-card-padding py-3 border-t border-outline-variant bg-surface flex items-center justify-between">
+<span class="text-body-sm font-body-sm text-on-surface-variant">Showing 1-3 of 124 records</span>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,10 +1,11 @@
-<div class="card" style="max-width: 560px">
-    <form method="post" action="<?= base_url('publish') ?>" id="publish-form">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding max-w-xl">
+    <form method="post" action="<?= base_url('publish') ?>" id="publish-form" class="space-y-4">
         <?= csrf_field() ?>
 
-        <div class="form-group">
-            <label for="media_type">Tipe Konten</label>
-            <select id="media_type" name="media_type">
+        <div>
+            <label for="media_type" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Tipe Konten</label>
+            <select id="media_type" name="media_type"
+                    class="w-full h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
                 <option value="image">Single Image</option>
                 <option value="carousel">Carousel</option>
                 <option value="reels">Reels (Video)</option>
@@ -12,31 +13,43 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label>URL Media (harus publik/sudah di-hosting)</label>
-            <div id="media-urls-container">
-                <input type="url" name="media_urls[]" placeholder="https://..." required style="margin-bottom: var(--space-2)">
+        <div>
+            <label class="block text-label-caps font-label-caps text-on-surface-variant mb-1">URL Media (harus publik/sudah di-hosting)</label>
+            <div id="media-urls-container" class="space-y-2">
+                <input type="url" name="media_urls[]" placeholder="https://..." required
+                       class="w-full h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
             </div>
-            <button type="button" id="add-url-btn" class="btn" hidden>+ Tambah URL (carousel)</button>
+            <button type="button" id="add-url-btn" hidden
+                    class="mt-2 h-[32px] px-3 rounded border border-outline-variant text-body-sm font-body-sm text-on-surface-variant hover:bg-surface-container transition-colors inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px]">add</span>
+                Tambah URL (carousel)
+            </button>
         </div>
 
-        <div class="form-group" id="caption-group">
-            <label for="caption">Caption</label>
-            <textarea id="caption" name="caption" rows="4"></textarea>
+        <div id="caption-group">
+            <label for="caption" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Caption</label>
+            <textarea id="caption" name="caption" rows="4"
+                      class="w-full px-3 py-2 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"></textarea>
         </div>
-        <p class="text-muted" id="story-note" hidden>Caption tidak didukung untuk Story oleh Instagram Content Publishing API.</p>
+        <p class="text-body-sm font-body-sm text-on-surface-variant" id="story-note" hidden>Caption tidak didukung untuk Story oleh Instagram Content Publishing API.</p>
 
-        <div class="form-group">
-            <label><input type="checkbox" id="publish_now" name="publish_now" value="1" checked> Publish sekarang</label>
+        <div>
+            <label class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface">
+                <input type="checkbox" id="publish_now" name="publish_now" value="1" checked class="rounded border-outline-variant text-primary focus:ring-primary">
+                Publish sekarang
+            </label>
         </div>
 
-        <div class="form-group" id="scheduled-group" hidden>
-            <label for="scheduled_at">Jadwal</label>
-            <input type="datetime-local" id="scheduled_at" name="scheduled_at">
+        <div id="scheduled-group" hidden>
+            <label for="scheduled_at" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Jadwal</label>
+            <input type="datetime-local" id="scheduled_at" name="scheduled_at"
+                   class="w-full h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
         </div>
 
-        <button type="submit" class="btn btn-primary">Simpan ke Antrian</button>
-        <a href="<?= base_url('publish') ?>" class="btn">Batal</a>
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="h-[36px] px-4 rounded bg-primary text-on-primary text-body-sm font-body-sm font-medium hover:bg-primary-container hover:text-on-primary-container transition-colors">Simpan ke Antrian</button>
+            <a href="<?= base_url('publish') ?>" class="h-[36px] px-4 rounded border border-outline-variant text-body-sm font-body-sm text-on-surface-variant flex items-center hover:bg-surface-container transition-colors">Batal</a>
+        </div>
     </form>
 </div>
 
@@ -50,24 +63,25 @@
     var publishNow = document.getElementById('publish_now');
     var scheduledGroup = document.getElementById('scheduled-group');
 
-    function addUrlInput() {
+    var INPUT_CLASS = 'w-full h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary';
+
+    function makeUrlInput(required) {
         var input = document.createElement('input');
         input.type = 'url';
         input.name = 'media_urls[]';
         input.placeholder = 'https://...';
-        input.style.marginBottom = 'var(--space-2)';
-        urlsContainer.appendChild(input);
+        input.required = !!required;
+        input.className = INPUT_CLASS;
+        return input;
+    }
+
+    function addUrlInput() {
+        urlsContainer.appendChild(makeUrlInput(false));
     }
 
     function resetUrlInputs() {
         urlsContainer.innerHTML = '';
-        var input = document.createElement('input');
-        input.type = 'url';
-        input.name = 'media_urls[]';
-        input.placeholder = 'https://...';
-        input.required = true;
-        input.style.marginBottom = 'var(--space-2)';
-        urlsContainer.appendChild(input);
+        urlsContainer.appendChild(makeUrlInput(true));
     }
 
     mediaType.addEventListener('change', function () {

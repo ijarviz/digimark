@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Social Orchestrator - Job Monitoring</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#006663",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#fffbff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "surface-variant": "#e1e2e4",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#00ebe5",
+                        "on-secondary-fixed": "#40000c",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#c4d2ff",
+                        "on-error-container": "#93000a",
+                        "secondary": "#ba0035",
+                        "on-background": "#191c1e",
+                        "primary": "#003d9b",
+                        "surface-container-low": "#f3f4f6",
+                        "primary-fixed": "#dae2ff",
+                        "outline-variant": "#c3c6d6",
+                        "tertiary-fixed-dim": "#00ddd8",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "on-primary-fixed": "#001848",
+                        "on-secondary-fixed-variant": "#920027",
+                        "outline": "#737685",
+                        "surface-container-high": "#e7e8ea",
+                        "on-tertiary-fixed": "#00201f",
+                        "secondary-container": "#e51146",
+                        "primary-container": "#0052cc",
+                        "surface-container-highest": "#e1e2e4",
+                        "tertiary": "#004c4a",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-fixed": "#35fbf5",
+                        "background": "#f8f9fb",
+                        "secondary-fixed-dim": "#ffb3b6",
+                        "surface": "#f8f9fb",
+                        "inverse-on-surface": "#f0f1f3",
+                        "surface-dim": "#d9dadc",
+                        "surface-container": "#edeef0",
+                        "secondary-fixed": "#ffdada",
+                        "surface-bright": "#f8f9fb",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#434654",
+                        "surface-tint": "#0c56d0",
+                        "inverse-primary": "#b2c5ff",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#00504d",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "card-padding": "16px",
+                        "margin-page": "24px",
+                        "table-cell-padding": "12px 16px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "data-mono": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-outline-variant bg-on-surface dark:bg-surface-container-lowest flex flex-col overflow-y-auto">
+<div class="p-6 pb-2">
+<h1 class="text-headline-lg font-headline-lg font-bold text-white dark:text-primary">Social Orchestrator</h1>
+<p class="text-body-sm font-body-sm text-surface-variant opacity-80 mt-1">Admin Console</p>
+</div>
+<nav class="flex-1 px-2 mt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-100 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-caps font-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-100 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="text-label-caps font-label-caps">Instagram Accounts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-100 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="text-label-caps font-label-caps">Content Insights</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high transition-colors scale-95 active:scale-100 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="link">link</span>
+<span class="text-label-caps font-label-caps">TikTok Tracking</span>
+</a>
+<!-- Active Nav Item -->
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-l-4 border-primary scale-95 active:scale-100 transition-transform rounded-r-lg" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="text-label-caps font-label-caps">Job Monitoring</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<button class="w-full py-2 bg-primary text-on-primary rounded font-label-caps text-label-caps hover:opacity-90 transition-opacity">
+                Connect Account
+            </button>
+</div>
+<div class="px-2 pb-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+<span class="text-label-caps font-label-caps">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+<span class="text-label-caps font-label-caps">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-64 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center h-16 px-margin-page">
+<div class="flex items-center gap-4">
+<span class="text-headline-md font-headline-md font-bold text-on-surface">Job Monitoring</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-container rounded-full p-2 transition-all opacity-80 active:opacity-100 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all opacity-80 active:opacity-100 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all opacity-80 active:opacity-100 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="p-margin-page grid grid-cols-12 gap-gutter max-w-[1600px] w-full mx-auto">
+<!-- Bento Grid Header / Summary Widgets -->
+<div class="col-span-12 md:col-span-4 bg-surface-container-lowest p-card-padding border border-outline-variant rounded-lg flex flex-col justify-between">
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface-variant mb-2">24H Success Rate</h3>
+<div class="flex items-end gap-3">
+<span class="text-headline-lg font-headline-lg text-on-surface">98.2%</span>
+<span class="text-body-sm font-body-sm text-[#36B37E] flex items-center gap-1 mb-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span> +0.5%
+                        </span>
+</div>
+</div>
+<div class="mt-4 h-12 w-full flex items-end gap-1 opacity-80">
+<!-- Fake sparkline bars -->
+<div class="w-1/12 bg-primary h-full rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[80%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[90%] rounded-t-sm"></div>
+<div class="w-1/12 bg-error h-[40%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[95%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[100%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[85%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[90%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[70%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[95%] rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-full rounded-t-sm"></div>
+<div class="w-1/12 bg-primary h-[90%] rounded-t-sm"></div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 bg-surface-container-lowest p-card-padding border border-outline-variant rounded-lg flex flex-col justify-between">
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface-variant mb-2">Active Runners</h3>
+<div class="text-headline-lg font-headline-lg text-on-surface">12 / 16</div>
+</div>
+<div class="mt-4 text-body-sm font-body-sm text-on-surface-variant">
+                    Node Pool: <span class="font-data-mono">us-east-1a</span>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 bg-surface-container-lowest p-card-padding border border-outline-variant rounded-lg flex flex-col justify-between">
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface-variant mb-2">Alert Configuration</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-error" data-weight="fill">warning</span>
+<span class="text-body-md font-body-md text-on-surface font-medium">Notify on 2x Failure</span>
+</div>
+</div>
+<button class="mt-4 px-3 py-1.5 text-body-sm font-body-sm border border-outline-variant rounded text-on-surface-variant hover:bg-surface-container transition-colors w-fit">
+                    Configure Policies
+                </button>
+</div>
+<!-- Main Job Logs Table -->
+<div class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-4">
+<div class="px-card-padding py-3 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h2 class="text-headline-md font-headline-md text-on-surface">Recent Job Runs</h2>
+<div class="flex gap-2">
+<input class="h-[36px] px-3 border border-outline-variant rounded text-body-sm font-body-sm bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Filter jobs..." type="text"/>
+<button class="h-[36px] px-3 border border-outline-variant rounded text-body-sm font-body-sm hover:bg-surface-container transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">filter_list</span> Filter
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-label-caps font-label-caps text-on-surface-variant">
+<th class="p-table-cell-padding font-semibold">Job Name</th>
+<th class="p-table-cell-padding font-semibold">Status</th>
+<th class="p-table-cell-padding font-semibold">Started At</th>
+<th class="p-table-cell-padding font-semibold">Finished At</th>
+<th class="p-table-cell-padding font-semibold">Duration</th>
+<th class="p-table-cell-padding font-semibold">Message</th>
+</tr>
+</thead>
+<tbody class="text-body-sm font-body-sm divide-y divide-outline-variant">
+<!-- Success Row -->
+<tr class="hover:bg-surface-container-lowest transition-colors h-[48px]">
+<td class="p-table-cell-padding font-data-mono text-on-surface">snapshot:ig-content</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#E3FCEF] text-[#006644]">Success</span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:45:01 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:46:12 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">1m 11s</td>
+<td class="p-table-cell-padding text-on-surface-variant truncate max-w-[200px]">-</td>
+</tr>
+<!-- Failed Row -->
+<tr class="hover:bg-surface-container-lowest transition-colors h-[48px]">
+<td class="p-table-cell-padding font-data-mono text-on-surface">sync:tiktok-metrics</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#FFEBE6] text-[#BF2600]">Failed</span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:30:00 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:30:45 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">45s</td>
+<td class="p-table-cell-padding text-error font-data-mono truncate max-w-[200px]" title="API Rate Limit Exceeded">API Rate Limit Exceeded</td>
+</tr>
+<!-- Success Row -->
+<tr class="hover:bg-surface-container-lowest transition-colors h-[48px]">
+<td class="p-table-cell-padding font-data-mono text-on-surface">report:daily-digest</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#E3FCEF] text-[#006644]">Success</span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:00:00 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:05:22 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">5m 22s</td>
+<td class="p-table-cell-padding text-on-surface-variant truncate max-w-[200px]">Generated 142 reports</td>
+</tr>
+<!-- Running Row -->
+<tr class="hover:bg-surface-container-lowest transition-colors h-[48px]">
+<td class="p-table-cell-padding font-data-mono text-on-surface">snapshot:ig-followers</td>
+<td class="p-table-cell-padding">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-primary-fixed text-on-primary-fixed">Running</span>
+</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">10:50:00 UTC</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">-</td>
+<td class="p-table-cell-padding text-on-surface-variant font-data-mono">12s</td>
+<td class="p-table-cell-padding text-on-surface-variant truncate max-w-[200px]">Batch 1/5...</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-3 border-t border-outline-variant flex justify-between items-center text-body-sm font-body-sm text-on-surface-variant">
+<span>Showing 1-4 of 1,245 runs</span>
+<div class="flex gap-1">
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container transition-colors disabled:opacity-50">Prev</button>
+<button class="px-2 py-1 border border-outline-variant rounded hover:bg-surface-container transition-colors">Next</button>
+</div>
+</div>
+</div>
+<!-- Audit Log Section -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden flex flex-col mt-4">
+<div class="px-card-padding py-3 border-b border-outline-variant bg-surface-container-low">
+<h2 class="text-headline-md font-headline-md text-on-surface">Audit Log</h2>
+</div>
+<div class="p-card-padding space-y-4">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="link">link</span>
+</div>
+<div>
+<p class="text-body-sm font-body-sm text-on-surface"><strong>Admin User</strong> connected new Instagram Account <span class="font-data-mono bg-surface-container px-1 py-0.5 rounded">@brand_official</span></p>
+<p class="text-label-caps font-label-caps text-on-surface-variant mt-1 font-data-mono">11:05:22 UTC - IP: 192.168.1.1</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="build">build</span>
+</div>
+<div>
+<p class="text-body-sm font-body-sm text-on-surface"><strong>System</strong> updated job schedule for <span class="font-data-mono bg-surface-container px-1 py-0.5 rounded">sync:tiktok-metrics</span></p>
+<p class="text-label-caps font-label-caps text-on-surface-variant mt-1 font-data-mono">09:00:00 UTC - Automated</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

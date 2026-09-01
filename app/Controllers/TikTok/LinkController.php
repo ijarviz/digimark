@@ -22,7 +22,8 @@ class LinkController extends BaseController
         unset($link);
 
         return view('layouts/main', [
-            'title'       => 'TikTok Links',
+            'title'       => 'TikTok Tracking Modules',
+            'subtitle'    => 'Monitor and orchestrate metrics for individual TikTok video links.',
             'activeNav'   => 'tiktok-links',
             'contentView' => 'tiktok/links_index',
             'contentData' => [
