@@ -19,6 +19,7 @@ class IgAdsInsightDailyModel extends Model
         'ad_reach',
         'ad_impressions',
         'spend',
+        'currency',
     ];
 
     /**
@@ -27,14 +28,15 @@ class IgAdsInsightDailyModel extends Model
     public function upsertDaily(array $row): void
     {
         $sql = 'INSERT INTO ig_ads_insight_daily
-                (ig_content_id, campaign_id, campaign_name, snapshot_date, ad_reach, ad_impressions, spend)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (ig_content_id, campaign_id, campaign_name, snapshot_date, ad_reach, ad_impressions, spend, currency)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     ig_content_id = VALUES(ig_content_id),
                     campaign_name = VALUES(campaign_name),
                     ad_reach = VALUES(ad_reach),
                     ad_impressions = VALUES(ad_impressions),
-                    spend = VALUES(spend)';
+                    spend = VALUES(spend),
+                    currency = VALUES(currency)';
 
         $this->db->query($sql, [
             $row['ig_content_id'],
@@ -44,24 +46,27 @@ class IgAdsInsightDailyModel extends Model
             $row['ad_reach'],
             $row['ad_impressions'],
             $row['spend'],
+            $row['currency'],
         ]);
     }
 
     /**
      * Campaign rows for the date range, with linked organic content
      * (permalink/caption) when ig_content_id is set. No ig_account scoping
-     * needed — Fase 1/2 assume a single connected account.
+     * needed — Fase 1/2 assume a single connected account. currency is
+     * grouped alongside campaign_id (it shouldn't vary per campaign) so
+     * spend never gets silently summed across different currencies.
      */
     public function getCampaignsInRange(string $from, string $to): array
     {
         return $this->db->table('ig_ads_insight_daily a')
-            ->select('a.campaign_id, a.campaign_name,
+            ->select('a.campaign_id, a.campaign_name, a.currency,
                       SUM(a.ad_reach) as ad_reach, SUM(a.ad_impressions) as ad_impressions, SUM(a.spend) as spend,
                       c.permalink, c.caption')
             ->join('ig_content c', 'c.id = a.ig_content_id', 'left')
             ->where('a.snapshot_date >=', $from)
             ->where('a.snapshot_date <=', $to)
-            ->groupBy('a.campaign_id, a.campaign_name, c.permalink, c.caption')
+            ->groupBy('a.campaign_id, a.campaign_name, a.currency, c.permalink, c.caption')
             ->orderBy('spend', 'DESC')
             ->get()
             ->getResultArray();

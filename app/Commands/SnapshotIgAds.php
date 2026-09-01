@@ -49,6 +49,16 @@ class SnapshotIgAds extends BaseSnapshotCommand
             return ['status' => 'failed', 'error' => $e->getMessage(), 'processed' => 0, 'failed' => 0];
         }
 
+        // Currency is a property of the ad account, fetched once per run —
+        // best-effort, a failure here just leaves currency null rather
+        // than blocking the whole sync.
+        try {
+            $currency = $adsApi->getAdAccountCurrency($account['ad_account_id'], $accessToken);
+        } catch (\Throwable $e) {
+            log_message('warning', '[snapshot:ig-ads] could not fetch ad account currency: ' . $e->getMessage());
+            $currency = null;
+        }
+
         $processed = 0;
         $failed    = 0;
 
@@ -72,6 +82,7 @@ class SnapshotIgAds extends BaseSnapshotCommand
                     'ad_reach'       => $campaign['ad_reach'],
                     'ad_impressions' => $campaign['ad_impressions'],
                     'spend'          => $campaign['spend'],
+                    'currency'       => $currency,
                 ]);
 
                 $processed++;

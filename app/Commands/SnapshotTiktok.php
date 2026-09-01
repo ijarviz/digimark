@@ -19,10 +19,11 @@ class SnapshotTiktok extends BaseSnapshotCommand
 
     protected function handleJob(array $params): array
     {
-        $links = (new TiktokLinkModel())->findAll();
+        $linkModel = new TiktokLinkModel();
+        $links     = $linkModel->activeLinks();
 
         if ($links === []) {
-            CLI::write('No tiktok_link rows to snapshot.', 'yellow');
+            CLI::write('No active tiktok_link rows to snapshot.', 'yellow');
 
             return ['status' => 'success', 'error' => null, 'processed' => 0, 'failed' => 0];
         }
@@ -37,6 +38,7 @@ class SnapshotTiktok extends BaseSnapshotCommand
         foreach ($links as $link) {
             try {
                 $trackingService->syncLink($link);
+                $linkModel->touchLastSynced($link['id']);
                 $processed++;
             } catch (\Throwable $e) {
                 $failed++;

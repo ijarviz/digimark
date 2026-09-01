@@ -37,6 +37,22 @@ class InstagramAdsApiService
     }
 
     /**
+     * The ad account's billing currency (e.g. "IDR", "USD") — a property of
+     * the account, not of individual insight rows, so it's fetched once
+     * per sync run and denormalized onto each campaign row rather than
+     * re-fetched per campaign.
+     */
+    public function getAdAccountCurrency(string $adAccountId, string $accessToken): ?string
+    {
+        $result = $this->get("/{$adAccountId}", [
+            'fields'       => 'currency',
+            'access_token' => $accessToken,
+        ]);
+
+        return $result['currency'] ?? null;
+    }
+
+    /**
      * Best-effort: finds an ig_content_id if this campaign is boosting an
      * organic post. NOTE: unverified against a live ad account — Graph
      * API's exact field for linking an ad's creative back to an IG media

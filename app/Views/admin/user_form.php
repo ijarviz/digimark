@@ -23,6 +23,11 @@
         </div>
 
         <div class="form-group">
+            <label for="password_confirm">Konfirmasi Password</label>
+            <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
+        </div>
+
+        <div class="form-group">
             <label for="role_id">Role</label>
             <select id="role_id" name="role_id" required>
                 <?php foreach ($roles as $role): ?>

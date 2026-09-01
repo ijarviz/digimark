@@ -60,7 +60,11 @@ class OAuthController extends BaseController
         $tokenService = new InstagramTokenService();
         $accountModel = new IgAccountModel();
 
-        $accountId = $accountModel->insert([
+        // Reconnecting the same ig_business_id updates its existing row
+        // (preserving any already-selected ad_account_id) instead of
+        // accumulating duplicate rows — previously every callback inserted
+        // a fresh row and "the active account" was just "highest id".
+        $accountId = $accountModel->upsertConnection([
             'ig_business_id'         => $result['ig_business_id'],
             'ig_username'            => $result['ig_username'],
             'fb_page_id'             => $result['fb_page_id'],

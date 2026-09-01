@@ -20,6 +20,8 @@ class UserModel extends Model
         'is_active',
         'last_login_at',
         'created_at',
+        'updated_at',
+        'password_changed_at',
     ];
 
     /**

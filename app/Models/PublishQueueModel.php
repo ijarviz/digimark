@@ -11,6 +11,9 @@ class PublishQueueModel extends Model
     protected $returnType    = 'array';
     protected $useTimestamps = false;
 
+    /** Manual/automatic retries stop being offered past this many attempts. */
+    public const MAX_RETRIES = 5;
+
     protected $allowedFields = [
         'ig_account_id',
         'caption',
@@ -23,6 +26,8 @@ class PublishQueueModel extends Model
         'published_at',
         'ig_media_id_result',
         'error_message',
+        'retry_count',
+        'updated_at',
         'created_by',
         'created_at',
     ];
@@ -61,6 +66,7 @@ class PublishQueueModel extends Model
             'status'                 => 'processing',
             'container_id'           => $containerId,
             'processing_started_at'  => date('Y-m-d H:i:s'),
+            'updated_at'             => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -71,6 +77,7 @@ class PublishQueueModel extends Model
             'ig_media_id_result'  => $igMediaId,
             'published_at'        => date('Y-m-d H:i:s'),
             'error_message'       => null,
+            'updated_at'          => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -79,6 +86,7 @@ class PublishQueueModel extends Model
         $this->update($id, [
             'status'        => 'failed',
             'error_message' => $errorMessage,
+            'updated_at'    => date('Y-m-d H:i:s'),
         ]);
     }
 
@@ -88,17 +96,34 @@ class PublishQueueModel extends Model
 
         $this->update($id, [
             'scheduled_at' => date('Y-m-d H:i:s', strtotime($row['scheduled_at'] . ' +1 day')),
+            'updated_at'   => date('Y-m-d H:i:s'),
         ]);
     }
 
+    /**
+     * @throws \RuntimeException if the item has already hit MAX_RETRIES — callers should check canRetry() first to show a friendly message instead.
+     */
     public function retry(int $id): void
     {
+        $row = $this->find($id);
+
+        if (($row['retry_count'] ?? 0) >= self::MAX_RETRIES) {
+            throw new \RuntimeException('Batas maksimum retry (' . self::MAX_RETRIES . 'x) sudah tercapai.');
+        }
+
         $this->update($id, [
             'status'                 => 'pending',
             'container_id'           => null,
             'processing_started_at'  => null,
             'error_message'          => null,
             'scheduled_at'           => date('Y-m-d H:i:s'),
+            'retry_count'            => ($row['retry_count'] ?? 0) + 1,
+            'updated_at'             => date('Y-m-d H:i:s'),
         ]);
+    }
+
+    public function canRetry(array $row): bool
+    {
+        return $row['status'] === 'failed' && ($row['retry_count'] ?? 0) < self::MAX_RETRIES;
     }
 }

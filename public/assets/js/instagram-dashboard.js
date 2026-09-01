@@ -41,6 +41,9 @@
         var reach = ads.reduce(function (sum, row) { return sum + Number(row.ad_reach || 0); }, 0);
         var impressions = ads.reduce(function (sum, row) { return sum + Number(row.ad_impressions || 0); }, 0);
         var spend = ads.reduce(function (sum, row) { return sum + Number(row.spend || 0); }, 0);
+        // Single ad account is assumed, so currency should be consistent
+        // across rows — take the first non-empty one found for display.
+        var currency = (ads.find(function (row) { return row.currency; }) || {}).currency || '';
 
         var elReach = document.getElementById('stat-ad-reach');
         var elImpressions = document.getElementById('stat-ad-impressions');
@@ -48,7 +51,7 @@
 
         if (elReach) elReach.textContent = reach;
         if (elImpressions) elImpressions.textContent = impressions;
-        if (elSpend) elSpend.textContent = spend.toFixed(2);
+        if (elSpend) elSpend.textContent = (currency ? currency + ' ' : '') + spend.toFixed(2);
     }
 
     function renderAdsTable(ads) {
@@ -74,7 +77,7 @@
                 '<td>' + escapeHtml(row.campaign_id) + '</td>' +
                 '<td>' + row.ad_reach + '</td>' +
                 '<td>' + row.ad_impressions + '</td>' +
-                '<td>' + Number(row.spend).toFixed(2) + '</td>' +
+                '<td>' + (row.currency ? escapeHtml(row.currency) + ' ' : '') + Number(row.spend).toFixed(2) + '</td>' +
                 '<td>' + linkedContent + '</td>';
             tbody.appendChild(tr);
         });

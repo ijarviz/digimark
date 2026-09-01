@@ -66,6 +66,35 @@ class PublishController extends BaseController
             return redirect()->to('/publish/new')->withInput();
         }
 
+        foreach ($urls as $url) {
+            if (! filter_var($url, FILTER_VALIDATE_URL)) {
+                session()->setFlashdata('error', "URL tidak valid: {$url}");
+
+                return redirect()->to('/publish/new')->withInput();
+            }
+        }
+
+        // Carousel needs 2-10 items (Instagram's own limit); every other
+        // type is exactly one media item — previously any count silently
+        // passed and only failed later, deep inside the Graph API call.
+        $urlCountError = match (true) {
+            $mediaType === 'carousel' && (count($urls) < 2 || count($urls) > 10) => 'Carousel butuh 2-10 URL media.',
+            $mediaType !== 'carousel' && count($urls) !== 1                       => ucfirst($mediaType) . ' hanya boleh 1 URL media.',
+            default                                                              => null,
+        };
+
+        if ($urlCountError) {
+            session()->setFlashdata('error', $urlCountError);
+
+            return redirect()->to('/publish/new')->withInput();
+        }
+
+        if (! $publishNow && strtotime($scheduledAt) === false) {
+            session()->setFlashdata('error', 'Format jadwal tidak valid.');
+
+            return redirect()->to('/publish/new')->withInput();
+        }
+
         $queueModel = new PublishQueueModel();
 
         $id = $queueModel->insert([
@@ -93,8 +122,8 @@ class PublishController extends BaseController
         $queueModel = new PublishQueueModel();
         $item       = $queueModel->find($id);
 
-        if (! $item || $item['status'] !== 'failed') {
-            session()->setFlashdata('error', 'Item tidak ditemukan atau tidak dalam status gagal.');
+        if (! $item || ! $queueModel->canRetry($item)) {
+            session()->setFlashdata('error', 'Item tidak ditemukan, bukan status gagal, atau sudah mencapai batas retry.');
 
             return redirect()->to('/publish');
         }

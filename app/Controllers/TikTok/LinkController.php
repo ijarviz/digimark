@@ -74,6 +74,29 @@ class LinkController extends BaseController
         return redirect()->to('/tiktok/links');
     }
 
+    public function toggleActive(int $id)
+    {
+        $this->requireCanManageLinks();
+
+        $linkModel = new TiktokLinkModel();
+        $link      = $linkModel->find($id);
+
+        if (! $link) {
+            session()->setFlashdata('error', 'Link tidak ditemukan.');
+
+            return redirect()->to('/tiktok/links');
+        }
+
+        $newState = $link['is_active'] ? 0 : 1;
+        $linkModel->update($id, ['is_active' => $newState]);
+
+        (new AuditLogger())->log(session()->get('user_id'), $newState ? 'activate_tiktok_link' : 'deactivate_tiktok_link', 'tiktok_link', $id);
+
+        session()->setFlashdata('success', $newState ? 'Link diaktifkan kembali.' : 'Link dinonaktifkan — tidak akan disertakan di snapshot berikutnya.');
+
+        return redirect()->to('/tiktok/links');
+    }
+
     private function canManageLinks(): bool
     {
         return in_array(session()->get('role_name'), ['admin', 'content_manager'], true);

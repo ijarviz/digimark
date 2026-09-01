@@ -11,15 +11,17 @@
             <th>Caption</th>
             <th>Jadwal</th>
             <th>Status</th>
+            <th>Retry</th>
             <th>Hasil / Error</th>
             <th>Aksi</th>
         </tr>
         </thead>
         <tbody>
         <?php if (empty($items)): ?>
-        <tr><td colspan="6" class="text-muted">Belum ada item di antrian publish.</td></tr>
+        <tr><td colspan="7" class="text-muted">Belum ada item di antrian publish.</td></tr>
         <?php endif; ?>
-        <?php foreach ($items as $item): ?>
+        <?php $maxRetries = \App\Models\PublishQueueModel::MAX_RETRIES; ?>
+        <?php foreach ($items as $item): $retryCount = $item['retry_count'] ?? 0; ?>
         <tr>
             <td><?= esc($item['media_type']) ?></td>
             <td><?= esc(mb_substr($item['caption'] ?? '', 0, 40)) ?></td>
@@ -34,15 +36,18 @@
                 ?>
                 <span class="badge <?= $badgeClass ?>"><?= esc($item['status']) ?></span>
             </td>
+            <td class="text-muted"><?= $retryCount ?>/<?= $maxRetries ?></td>
             <td class="text-muted">
                 <?= esc($item['ig_media_id_result'] ?? $item['error_message'] ?? '-') ?>
             </td>
             <td>
-                <?php if ($item['status'] === 'failed'): ?>
+                <?php if ($item['status'] === 'failed' && $retryCount < $maxRetries): ?>
                 <form method="post" action="<?= base_url('publish/' . $item['id'] . '/retry') ?>" style="display:inline">
                     <?= csrf_field() ?>
                     <button type="submit" class="btn">Retry</button>
                 </form>
+                <?php elseif ($item['status'] === 'failed'): ?>
+                <span class="text-muted">Batas retry tercapai</span>
                 <?php endif; ?>
             </td>
         </tr>
