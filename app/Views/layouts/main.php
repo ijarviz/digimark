@@ -28,6 +28,10 @@ $username = $session->get('username');
         <a href="<?= base_url('dashboard/tiktok') ?>" class="<?= ($activeNav ?? '') === 'tiktok-dashboard' ? 'active' : '' ?>">TikTok Metrics</a>
         <a href="<?= base_url('tiktok/links') ?>" class="<?= ($activeNav ?? '') === 'tiktok-links' ? 'active' : '' ?>">TikTok Links</a>
 
+        <?php if (in_array($roleName, ['admin', 'content_manager'], true)): ?>
+        <a href="<?= base_url('publish') ?>" class="<?= ($activeNav ?? '') === 'ig-publish' ? 'active' : '' ?>">Publish Instagram</a>
+        <?php endif; ?>
+
         <?php if ($roleName === 'admin'): ?>
         <div class="nav-section">Admin</div>
         <a href="<?= base_url('admin/users') ?>" class="<?= ($activeNav ?? '') === 'admin-users' ? 'active' : '' ?>">Users</a>

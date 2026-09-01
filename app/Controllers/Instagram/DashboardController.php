@@ -4,6 +4,7 @@ namespace App\Controllers\Instagram;
 
 use App\Controllers\BaseController;
 use App\Models\IgAccountModel;
+use App\Models\IgAdsInsightDailyModel;
 use App\Models\IgContentInsightDailyModel;
 use App\Models\IgProfileInsightDailyModel;
 
@@ -32,13 +33,14 @@ class DashboardController extends BaseController
         $account = (new IgAccountModel())->getActiveAccount();
 
         if (! $account) {
-            return $this->response->setJSON(['profile' => [], 'content' => []]);
+            return $this->response->setJSON(['profile' => [], 'content' => [], 'ads' => []]);
         }
 
         $profile = (new IgProfileInsightDailyModel())->getSeriesInRange($account['id'], $from, $to);
         $content = (new IgContentInsightDailyModel())->getContentTotalsInRange($account['id'], $from, $to);
+        $ads     = (new IgAdsInsightDailyModel())->getCampaignsInRange($from, $to);
 
-        return $this->response->setJSON(['profile' => $profile, 'content' => $content]);
+        return $this->response->setJSON(['profile' => $profile, 'content' => $content, 'ads' => $ads]);
     }
 
     /**

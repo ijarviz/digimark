@@ -21,10 +21,15 @@ $routes->group('', ['filter' => 'role:admin,content_manager,viewer'], static fun
     $routes->get('tiktok/links', 'TikTok\LinkController::index');
 });
 
-// TikTok link management — content_manager + admin only.
+// TikTok link management + Instagram publish — content_manager + admin only.
 $routes->group('', ['filter' => 'role:admin,content_manager'], static function ($routes) {
     $routes->get('tiktok/links/new', 'TikTok\LinkController::new');
     $routes->post('tiktok/links', 'TikTok\LinkController::create');
+
+    $routes->get('publish', 'Instagram\PublishController::index');
+    $routes->get('publish/new', 'Instagram\PublishController::new');
+    $routes->post('publish', 'Instagram\PublishController::create');
+    $routes->post('publish/(:num)/retry', 'Instagram\PublishController::retry/$1');
 });
 
 // Admin-only area.
@@ -36,6 +41,9 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('ig-account', 'Instagram\OAuthController::status');
     $routes->get('ig-account/connect', 'Instagram\OAuthController::connect');
     $routes->get('ig-account/callback', 'Instagram\OAuthController::callback');
+
+    $routes->get('ads-account/select', 'Admin\AdsAccountController::select');
+    $routes->post('ads-account/choose', 'Admin\AdsAccountController::choose');
 
     $routes->get('job-logs', 'Admin\JobLogController::index');
 });

@@ -72,9 +72,45 @@ class OAuthController extends BaseController
 
         (new AuditLogger())->log(session()->get('user_id'), 'connect_account', 'ig_account', $accountId);
 
-        session()->setFlashdata('success', 'Akun Instagram berhasil terhubung: @' . $result['ig_username']);
+        $flash = 'Akun Instagram berhasil terhubung: @' . $result['ig_username'];
+        $flash .= ' ' . $this->tryAutoResolveAdAccount($accountModel, $accountId, $result['access_token']);
+
+        session()->setFlashdata('success', trim($flash));
 
         return redirect()->to('/admin/ig-account');
+    }
+
+    /**
+     * Best-effort: if ads_read was granted and the user has exactly one
+     * ad account, auto-select it so the admin doesn't need an extra step.
+     * Any failure here is non-fatal — the IG connection itself already
+     * succeeded by the time this runs.
+     */
+    private function tryAutoResolveAdAccount(IgAccountModel $accountModel, int $accountId, string $accessToken): string
+    {
+        try {
+            $adAccounts = (new InstagramOAuthService())->listAdAccounts($accessToken);
+        } catch (\Throwable $e) {
+            log_message('error', '[ig-oauth] listAdAccounts failed: ' . $e->getMessage());
+
+            return 'Ad account belum terhubung (gagal mengambil daftar — coba pilih manual di halaman Ads Account).';
+        }
+
+        if (count($adAccounts) === 1) {
+            $accountModel->update($accountId, [
+                'ad_account_id'       => $adAccounts[0]['id'],
+                'business_manager_id' => $adAccounts[0]['business_id'],
+                'ads_connected_at'    => date('Y-m-d H:i:s'),
+            ]);
+
+            return 'Ad account otomatis terhubung: ' . $adAccounts[0]['name'] . '.';
+        }
+
+        if (count($adAccounts) > 1) {
+            return 'Ditemukan beberapa ad account — silakan pilih di halaman Ads Account.';
+        }
+
+        return 'Tidak ada ad account ditemukan untuk akun ini.';
     }
 
     private function requireAdmin(): void

@@ -51,4 +51,9 @@ class IgContentModel extends Model
 
         return (int) $this->where('ig_media_id', $row['ig_media_id'])->first()['id'];
     }
+
+    public function findByMediaId(string $igMediaId): ?array
+    {
+        return $this->where('ig_media_id', $igMediaId)->first();
+    }
 }

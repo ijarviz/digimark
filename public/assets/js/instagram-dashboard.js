@@ -10,10 +10,75 @@
             renderStats(data.profile);
             renderProfileChart(data.profile);
             renderContentTable(data.content);
+            renderAdsStats(data.ads || []);
+            renderAdsTable(data.ads || []);
         })
         .catch(function (err) {
             console.error('Failed to load IG chart data', err);
         });
+
+    setupViewToggle();
+
+    function setupViewToggle() {
+        var organic = document.getElementById('organic-section');
+        var ads = document.getElementById('ads-section');
+        var radios = document.querySelectorAll('input[name="view-mode"]');
+
+        if (!organic || !ads || !radios.length) {
+            return;
+        }
+
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                var mode = this.value;
+                organic.hidden = mode === 'ads';
+                ads.hidden = mode === 'organic';
+            });
+        });
+    }
+
+    function renderAdsStats(ads) {
+        var reach = ads.reduce(function (sum, row) { return sum + Number(row.ad_reach || 0); }, 0);
+        var impressions = ads.reduce(function (sum, row) { return sum + Number(row.ad_impressions || 0); }, 0);
+        var spend = ads.reduce(function (sum, row) { return sum + Number(row.spend || 0); }, 0);
+
+        var elReach = document.getElementById('stat-ad-reach');
+        var elImpressions = document.getElementById('stat-ad-impressions');
+        var elSpend = document.getElementById('stat-ad-spend');
+
+        if (elReach) elReach.textContent = reach;
+        if (elImpressions) elImpressions.textContent = impressions;
+        if (elSpend) elSpend.textContent = spend.toFixed(2);
+    }
+
+    function renderAdsTable(ads) {
+        var tbody = document.querySelector('#ads-table tbody');
+        if (!tbody) {
+            return;
+        }
+        tbody.innerHTML = '';
+
+        if (!ads.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-muted">Tidak ada data campaign pada rentang ini.</td></tr>';
+            return;
+        }
+
+        ads.forEach(function (row) {
+            var tr = document.createElement('tr');
+            var linkedContent = row.permalink
+                ? '<a href="' + escapeAttr(row.permalink) + '" target="_blank" rel="noopener">' + escapeHtml((row.caption || '').substring(0, 40) || 'Lihat konten') + '</a>'
+                : '-';
+
+            tr.innerHTML =
+                '<td>' + escapeHtml(row.campaign_name || '(tanpa nama)') + '</td>' +
+                '<td>' + escapeHtml(row.campaign_id) + '</td>' +
+                '<td>' + row.ad_reach + '</td>' +
+                '<td>' + row.ad_impressions + '</td>' +
+                '<td>' + Number(row.spend).toFixed(2) + '</td>' +
+                '<td>' + linkedContent + '</td>';
+            tbody.appendChild(tr);
+        });
+    }
 
     function renderStats(profile) {
         var latest = profile.length ? profile[profile.length - 1] : null;

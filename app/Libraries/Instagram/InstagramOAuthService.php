@@ -24,8 +24,10 @@ class InstagramOAuthService
     private const SCOPES = [
         'instagram_basic',
         'instagram_manage_insights',
+        'instagram_content_publish',
         'pages_show_list',
         'pages_read_engagement',
+        'ads_read',
     ];
 
     public function getAuthorizeUrl(): string
@@ -77,6 +79,26 @@ class InstagramOAuthService
             'access_token' => $result['access_token'],
             'expires_at'   => (new DateTime())->modify('+' . ($result['expires_in'] ?? 5184000) . ' seconds'),
         ];
+    }
+
+    /**
+     * Ad accounts accessible to the connected user, for the Fase 2 ads
+     * account picker. Requires the `ads_read` scope to have been granted.
+     *
+     * @return list<array{id: string, name: string, business_id: ?string}>
+     */
+    public function listAdAccounts(string $accessToken): array
+    {
+        $result = $this->get('/me/adaccounts', [
+            'fields'       => 'id,name,business',
+            'access_token' => $accessToken,
+        ]);
+
+        return array_map(static fn (array $account) => [
+            'id'          => $account['id'],
+            'name'        => $account['name'] ?? $account['id'],
+            'business_id' => $account['business']['id'] ?? null,
+        ], $result['data'] ?? []);
     }
 
     private function exchangeCodeForToken(string $code): array
