@@ -11,7 +11,7 @@ namespace App\Libraries\TikTok;
 interface TikTokDataSourceInterface
 {
     /**
-     * @return array{views:int, likes:int, comments:int, shares:int}
+     * @return array{views:int, likes:int, comments:int, shares:int, saves:int}
      *
      * @throws TikTokDataSourceException on any failure to fetch metrics for the given URL.
      */

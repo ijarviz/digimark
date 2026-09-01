@@ -30,6 +30,7 @@ class TikTokTrackingService
             'likes'          => $metrics['likes'],
             'comments'       => $metrics['comments'],
             'shares'         => $metrics['shares'],
+            'saves'          => $metrics['saves'],
             'source'         => $tiktokLink['data_source'],
         ]);
     }

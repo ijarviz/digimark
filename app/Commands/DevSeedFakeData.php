@@ -144,8 +144,8 @@ class DevSeedFakeData extends BaseCommand
         $insightModel = new TiktokInsightDailyModel();
 
         $fakeLinks = [
-            ['url' => 'https://www.tiktok.com/@fakecreator1/video/1111111111', 'creator_handle' => '@fakecreator1', 'note' => 'Campaign A'],
-            ['url' => 'https://www.tiktok.com/@fakecreator2/video/2222222222', 'creator_handle' => '@fakecreator2', 'note' => 'Campaign B'],
+            ['url' => 'https://www.tiktok.com/@fakecreator1/video/1111111111', 'creator_handle' => '@fakecreator1', 'note' => 'Campaign A', 'segment' => 'micro', 'gender' => 'female', 'budget' => 1500000],
+            ['url' => 'https://www.tiktok.com/@fakecreator2/video/2222222222', 'creator_handle' => '@fakecreator2', 'note' => 'Campaign B', 'segment' => 'macro', 'gender' => 'all', 'budget' => 5000000],
         ];
 
         foreach ($fakeLinks as $fake) {
@@ -155,6 +155,9 @@ class DevSeedFakeData extends BaseCommand
                 'url'            => $fake['url'],
                 'creator_handle' => $fake['creator_handle'],
                 'affiliate_note' => $fake['note'],
+                'segment'        => $fake['segment'],
+                'gender'         => $fake['gender'],
+                'budget'         => $fake['budget'],
                 'data_source'    => 'scrape',
                 'added_by'       => null,
                 'created_at'     => date('Y-m-d H:i:s'),
@@ -168,6 +171,7 @@ class DevSeedFakeData extends BaseCommand
                     'likes'          => random_int(50, 3000),
                     'comments'       => random_int(0, 400),
                     'shares'         => random_int(0, 200),
+                    'saves'          => random_int(0, 300),
                     'source'         => 'scrape',
                 ]);
             }

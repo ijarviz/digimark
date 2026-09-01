@@ -17,12 +17,13 @@
             <th>Likes</th>
             <th>Comments</th>
             <th>Shares</th>
+            <th>Saves</th>
             <th>Tanggal Data</th>
         </tr>
         </thead>
         <tbody>
         <?php if (empty($links)): ?>
-        <tr><td colspan="8" class="text-muted">Belum ada link TikTok.</td></tr>
+        <tr><td colspan="9" class="text-muted">Belum ada link TikTok.</td></tr>
         <?php endif; ?>
         <?php foreach ($links as $link): $insight = $link['insight']; ?>
         <tr>
@@ -33,6 +34,7 @@
             <td><?= $insight['likes'] ?? '-' ?></td>
             <td><?= $insight['comments'] ?? '-' ?></td>
             <td><?= $insight['shares'] ?? '-' ?></td>
+            <td><?= $insight['saves'] ?? '-' ?></td>
             <td><?= esc($insight['snapshot_date'] ?? '-') ?></td>
         </tr>
         <?php endforeach; ?>

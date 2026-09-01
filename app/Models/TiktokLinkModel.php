@@ -6,6 +6,9 @@ use CodeIgniter\Model;
 
 class TiktokLinkModel extends Model
 {
+    public const SEGMENTS = ['nano', 'micro', 'macro', 'celebrity'];
+    public const GENDERS  = ['male', 'female', 'unisex', 'all'];
+
     protected $table         = 'tiktok_link';
     protected $primaryKey    = 'id';
     protected $returnType    = 'array';
@@ -16,6 +19,9 @@ class TiktokLinkModel extends Model
         'tiktok_video_id',
         'creator_handle',
         'affiliate_note',
+        'segment',
+        'gender',
+        'budget',
         'data_source',
         'is_active',
         'last_synced_at',
@@ -27,7 +33,10 @@ class TiktokLinkModel extends Model
         // regex_match confirms the host is actually (a subdomain of)
         // tiktok.com — valid_url_strict alone accepts any http(s) URL,
         // which previously let non-TikTok links be tracked silently.
-        'url' => 'required|max_length[500]|valid_url_strict[http,https]|regex_match[/^https?:\/\/([\w-]+\.)?tiktok\.com\//i]',
+        'url'     => 'required|max_length[500]|valid_url_strict[http,https]|regex_match[/^https?:\/\/([\w-]+\.)?tiktok\.com\//i]',
+        'segment' => 'permit_empty|in_list[nano,micro,macro,celebrity]',
+        'gender'  => 'permit_empty|in_list[male,female,unisex,all]',
+        'budget'  => 'permit_empty|decimal',
     ];
 
     protected $validationMessages = [

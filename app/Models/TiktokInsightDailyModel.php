@@ -18,6 +18,7 @@ class TiktokInsightDailyModel extends Model
         'likes',
         'comments',
         'shares',
+        'saves',
         'source',
     ];
 
@@ -29,13 +30,14 @@ class TiktokInsightDailyModel extends Model
     public function upsertDaily(array $row): void
     {
         $sql = 'INSERT INTO tiktok_insight_daily
-                (tiktok_link_id, snapshot_date, views, likes, comments, shares, source)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (tiktok_link_id, snapshot_date, views, likes, comments, shares, saves, source)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ON DUPLICATE KEY UPDATE
                     views = VALUES(views),
                     likes = VALUES(likes),
                     comments = VALUES(comments),
                     shares = VALUES(shares),
+                    saves = VALUES(saves),
                     source = VALUES(source)';
 
         $this->db->query($sql, [
@@ -45,6 +47,7 @@ class TiktokInsightDailyModel extends Model
             $row['likes'],
             $row['comments'],
             $row['shares'],
+            $row['saves'],
             $row['source'],
         ]);
     }

@@ -40,7 +40,10 @@ class LinkController extends BaseController
             'title'       => 'Tambah TikTok Link',
             'activeNav'   => 'tiktok-links',
             'contentView' => 'tiktok/link_form',
-            'contentData' => [],
+            'contentData' => [
+                'segments' => TiktokLinkModel::SEGMENTS,
+                'genders'  => TiktokLinkModel::GENDERS,
+            ],
         ]);
     }
 
@@ -54,6 +57,9 @@ class LinkController extends BaseController
             'url'             => $this->request->getPost('url'),
             'creator_handle'  => $this->request->getPost('creator_handle'),
             'affiliate_note'  => $this->request->getPost('affiliate_note'),
+            'segment'         => $this->request->getPost('segment') ?: null,
+            'gender'          => $this->request->getPost('gender') ?: null,
+            'budget'          => $this->request->getPost('budget') !== '' ? $this->request->getPost('budget') : null,
             'data_source'     => $this->request->getPost('data_source') ?: 'scrape',
             'added_by'        => session()->get('user_id'),
             'created_at'      => date('Y-m-d H:i:s'),
