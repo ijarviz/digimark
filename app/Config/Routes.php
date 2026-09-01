@@ -37,6 +37,11 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->get('users', 'Admin\UserController::index');
     $routes->get('users/new', 'Admin\UserController::new');
     $routes->post('users', 'Admin\UserController::create');
+    $routes->get('users/(:num)/edit', 'Admin\UserController::edit/$1');
+    $routes->post('users/(:num)/update', 'Admin\UserController::update/$1');
+
+    $routes->get('api-settings', 'Admin\MetaAppConfigController::edit');
+    $routes->post('api-settings', 'Admin\MetaAppConfigController::update');
 
     $routes->get('ig-account', 'Instagram\OAuthController::status');
     $routes->get('ig-account/connect', 'Instagram\OAuthController::connect');

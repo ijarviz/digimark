@@ -2,6 +2,7 @@
 
 namespace App\Libraries\Instagram;
 
+use App\Models\MetaAppConfigModel;
 use Config\Services;
 use DateTime;
 use RuntimeException;
@@ -11,9 +12,10 @@ use RuntimeException;
  * short-lived token -> exchange for long-lived token -> resolve the IG
  * Business Account linked to the user's Facebook Page.
  *
- * Requires IG_APP_ID / IG_APP_SECRET / IG_REDIRECT_URI in .env — until a
- * real Meta App exists these are placeholders and this flow cannot
- * complete end-to-end.
+ * Credentials are read from the admin-editable meta_app_config table
+ * (Admin > API Settings) first, falling back to IG_APP_ID / IG_APP_SECRET
+ * / IG_REDIRECT_URI in .env if no DB config has been saved yet — until
+ * either is set this flow cannot complete end-to-end.
  */
 class InstagramOAuthService
 {
@@ -33,8 +35,8 @@ class InstagramOAuthService
     public function getAuthorizeUrl(): string
     {
         $params = [
-            'client_id'     => env('IG_APP_ID'),
-            'redirect_uri'  => env('IG_REDIRECT_URI'),
+            'client_id'     => $this->appId(),
+            'redirect_uri'  => $this->redirectUri(),
             'scope'         => implode(',', self::SCOPES),
             'response_type' => 'code',
         ];
@@ -104,9 +106,9 @@ class InstagramOAuthService
     private function exchangeCodeForToken(string $code): array
     {
         return $this->get('/oauth/access_token', [
-            'client_id'     => env('IG_APP_ID'),
-            'client_secret' => env('IG_APP_SECRET'),
-            'redirect_uri'  => env('IG_REDIRECT_URI'),
+            'client_id'     => $this->appId(),
+            'client_secret' => $this->appSecret(),
+            'redirect_uri'  => $this->redirectUri(),
             'code'          => $code,
         ]);
     }
@@ -115,10 +117,31 @@ class InstagramOAuthService
     {
         return $this->get('/oauth/access_token', [
             'grant_type'        => 'fb_exchange_token',
-            'client_id'         => env('IG_APP_ID'),
-            'client_secret'     => env('IG_APP_SECRET'),
+            'client_id'         => $this->appId(),
+            'client_secret'     => $this->appSecret(),
             'fb_exchange_token' => $shortLivedToken,
         ]);
+    }
+
+    private function appId(): string
+    {
+        $config = (new MetaAppConfigModel())->getConfig();
+
+        return ! empty($config['app_id']) ? $config['app_id'] : (string) env('IG_APP_ID');
+    }
+
+    private function appSecret(): string
+    {
+        $secret = (new MetaAppConfigModel())->getDecryptedAppSecret();
+
+        return $secret ?? (string) env('IG_APP_SECRET');
+    }
+
+    private function redirectUri(): string
+    {
+        $config = (new MetaAppConfigModel())->getConfig();
+
+        return ! empty($config['redirect_uri']) ? $config['redirect_uri'] : (string) env('IG_REDIRECT_URI');
     }
 
     private function getFirstPageId(string $accessToken): string

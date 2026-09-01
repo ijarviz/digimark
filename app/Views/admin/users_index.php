@@ -13,6 +13,7 @@
             <th>Role</th>
             <th>Status</th>
             <th>Login Terakhir</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -24,6 +25,7 @@
             <td><span class="badge badge-success"><?= esc($user['role_name']) ?></span></td>
             <td><?= $user['is_active'] ? 'Aktif' : 'Nonaktif' ?></td>
             <td><?= esc($user['last_login_at'] ?? '-') ?></td>
+            <td><a href="<?= base_url('admin/users/' . $user['id'] . '/edit') ?>" class="btn">Edit</a></td>
         </tr>
         <?php endforeach; ?>
         </tbody>

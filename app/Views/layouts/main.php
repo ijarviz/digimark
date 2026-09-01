@@ -35,6 +35,7 @@ $username = $session->get('username');
         <?php if ($roleName === 'admin'): ?>
         <div class="nav-section">Admin</div>
         <a href="<?= base_url('admin/users') ?>" class="<?= ($activeNav ?? '') === 'admin-users' ? 'active' : '' ?>">Users</a>
+        <a href="<?= base_url('admin/api-settings') ?>" class="<?= ($activeNav ?? '') === 'admin-api-settings' ? 'active' : '' ?>">API Settings</a>
         <a href="<?= base_url('admin/ig-account') ?>" class="<?= ($activeNav ?? '') === 'admin-ig-account' ? 'active' : '' ?>">IG Account</a>
         <a href="<?= base_url('admin/job-logs') ?>" class="<?= ($activeNav ?? '') === 'admin-job-logs' ? 'active' : '' ?>">Job Logs</a>
         <?php endif; ?>
