@@ -78,6 +78,14 @@
                             <span class="material-symbols-outlined text-[14px]">favorite</span>
                             <span class="font-data-mono text-data-mono"><?= $insight['likes'] ?? '--' ?></span>
                         </div>
+                        <div class="flex items-center gap-1" title="Comments">
+                            <span class="material-symbols-outlined text-[14px]">chat_bubble</span>
+                            <span class="font-data-mono text-data-mono"><?= $insight['comments'] ?? '--' ?></span>
+                        </div>
+                        <div class="flex items-center gap-1" title="Shares">
+                            <span class="material-symbols-outlined text-[14px]">share</span>
+                            <span class="font-data-mono text-data-mono"><?= $insight['shares'] ?? '--' ?></span>
+                        </div>
                         <div class="flex items-center gap-1" title="Saves">
                             <span class="material-symbols-outlined text-[14px]">bookmark</span>
                             <span class="font-data-mono text-data-mono"><?= $insight['saves'] ?? '--' ?></span>
