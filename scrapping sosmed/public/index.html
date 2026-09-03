@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Social Scraper Dashboard</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">📡</div>
+      <div>
+        <div class="name">Social Scraper</div>
+        <div class="sub">Dashboard</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-label">Menu</div>
+      <button class="nav-item active" data-view="followers">
+        <span class="icon">👥</span> Scrap Follower
+      </button>
+      <button class="nav-item" data-view="video">
+        <span class="icon">❤️</span> Scrap Like &amp; View
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">© 2026 Social Scraper</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ============ VIEW: FOLLOWER ============ -->
+    <section class="view active" id="view-followers">
+      <div class="topbar">
+        <div>
+          <h1>Scrap Follower</h1>
+          <p>Masukkan username, klik Scrap untuk lihat jumlah follower/subscriber publik.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="badge tiktok">🎵</div>
+            <h2>TikTok</h2>
+          </div>
+          <p class="sub">Jumlah follower akun TikTok.</p>
+
+          <form class="scrap-form" data-platform="tiktok">
+            <div class="field">
+              <span>@</span>
+              <input type="text" class="username" placeholder="username" autocomplete="off" required />
+            </div>
+            <button type="submit" class="btn tiktok">Scrap</button>
+          </form>
+
+          <div class="result"></div>
+          <div class="error"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="badge instagram">📸</div>
+            <h2>Instagram</h2>
+          </div>
+          <p class="sub">Jumlah follower akun Instagram.</p>
+
+          <form class="scrap-form" data-platform="instagram">
+            <div class="field">
+              <span>@</span>
+              <input type="text" class="username" placeholder="username" autocomplete="off" required />
+            </div>
+            <button type="submit" class="btn instagram">Scrap</button>
+          </form>
+
+          <div class="result"></div>
+          <div class="error"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="badge youtube">▶️</div>
+            <h2>YouTube</h2>
+          </div>
+          <p class="sub">Jumlah subscriber channel YouTube.</p>
+
+          <form class="scrap-form" data-platform="youtube" data-label="subscribers">
+            <div class="field">
+              <span>@</span>
+              <input type="text" class="username" placeholder="handle" autocomplete="off" required />
+            </div>
+            <button type="submit" class="btn youtube">Scrap</button>
+          </form>
+
+          <div class="result"></div>
+          <div class="error"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: VIDEO STATS ============ -->
+    <section class="view" id="view-video">
+      <div class="topbar">
+        <div>
+          <h1>Scrap Like &amp; View</h1>
+          <p>Tempel link video TikTok, klik Scrap untuk lihat jumlah like, view, comment, dan share.</p>
+        </div>
+      </div>
+
+      <div class="card video-card">
+        <div class="card-header">
+          <div class="badge tiktok">🎵</div>
+          <h2>Statistik Video TikTok</h2>
+        </div>
+        <p class="sub">Video harus publik (bukan privat/akun terkunci).</p>
+
+        <form id="video-form">
+          <div class="field">
+            <span>🔗</span>
+            <input type="text" id="video-url" placeholder="https://www.tiktok.com/@username/video/1234567890" autocomplete="off" required />
+          </div>
+          <button type="submit" class="btn accent" id="video-submit">Scrap</button>
+        </form>
+
+        <div id="video-error" class="error"></div>
+
+        <div id="video-result" style="display:none;">
+          <div class="stat-grid">
+            <div class="stat-tile">
+              <div class="icon">👁️</div>
+              <div class="value" data-stat="views">–</div>
+              <div class="name">Views</div>
+            </div>
+            <div class="stat-tile">
+              <div class="icon">❤️</div>
+              <div class="value" data-stat="likes">–</div>
+              <div class="name">Likes</div>
+            </div>
+            <div class="stat-tile">
+              <div class="icon">💬</div>
+              <div class="value" data-stat="comments">–</div>
+              <div class="name">Comments</div>
+            </div>
+            <div class="stat-tile">
+              <div class="icon">🔁</div>
+              <div class="value" data-stat="shares">–</div>
+              <div class="name">Shares</div>
+            </div>
+            <div class="stat-tile">
+              <div class="icon">🔖</div>
+              <div class="value" data-stat="saves">–</div>
+              <div class="name">Saves</div>
+            </div>
+          </div>
+
+          <div class="video-meta">
+            <span class="author" id="video-author"></span>
+            <div class="desc" id="video-desc"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

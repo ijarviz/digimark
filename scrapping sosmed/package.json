@@ -1,0 +1,15 @@
+{
+  "name": "tiktok-follower-scraper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ambil jumlah follower TikTok publik pakai Playwright, tanpa login.",
+  "type": "module",
+  "scripts": {
+    "count": "node scripts/get-follower-count.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "playwright": "^1.48.0"
+  }
+}

@@ -4,6 +4,9 @@ namespace App\Controllers\TikTok;
 
 use App\Controllers\BaseController;
 use App\Libraries\AuditLogger;
+use App\Libraries\TikTok\ScrapeTikTokDataSource;
+use App\Libraries\TikTok\TikTokDataSourceException;
+use App\Libraries\TikTok\TikTokTrackingService;
 use App\Models\TiktokInsightDailyModel;
 use App\Models\TiktokLinkModel;
 
@@ -14,7 +17,33 @@ class LinkController extends BaseController
         $linkModel    = new TiktokLinkModel();
         $insightModel = new TiktokInsightDailyModel();
 
-        $links = $linkModel->orderBy('created_at', 'DESC')->findAll();
+        $search   = trim((string) $this->request->getGet('q'));
+        $dateFrom = (string) $this->request->getGet('date_from');
+        $dateTo   = (string) $this->request->getGet('date_to');
+        $segment  = (string) $this->request->getGet('segment');
+
+        $builder = $linkModel->orderBy('created_at', 'DESC');
+
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('creator_handle', $search)
+                ->orLike('affiliate_note', $search)
+                ->groupEnd();
+        }
+
+        if ($dateFrom !== '') {
+            $builder->where('video_posted_at >=', $dateFrom . ' 00:00:00');
+        }
+
+        if ($dateTo !== '') {
+            $builder->where('video_posted_at <=', $dateTo . ' 23:59:59');
+        }
+
+        if ($segment !== '' && in_array($segment, TiktokLinkModel::SEGMENTS, true)) {
+            $builder->where('segment', $segment);
+        }
+
+        $links = $builder->findAll();
 
         foreach ($links as &$link) {
             $link['latest_insight'] = $insightModel->latestByLink($link['id']);
@@ -29,8 +58,73 @@ class LinkController extends BaseController
             'contentData' => [
                 'links'   => $links,
                 'canEdit' => $this->canManageLinks(),
+                'filters' => [
+                    'q'         => $search,
+                    'date_from' => $dateFrom,
+                    'date_to'   => $dateTo,
+                    'segment'   => $segment,
+                ],
+                'segments' => TiktokLinkModel::SEGMENTS,
+                'summary' => $this->buildSummary($links),
             ],
         ]);
+    }
+
+    /**
+     * Aggregates the (already filtered) links currently shown on the page —
+     * so the summary reflects whatever search/date filter is active, not
+     * the whole table. Engagement rate/share rate/save rate are computed
+     * from totals (sum of engagement / sum of views), not averaged
+     * per-link, which is the standard way to summarize multiple posts.
+     */
+    private function buildSummary(array $links): array
+    {
+        $totalViews    = 0;
+        $totalLikes    = 0;
+        $totalComments = 0;
+        $totalShares   = 0;
+        $totalSaves    = 0;
+        $linksWithData       = 0;
+        $totalBudget         = 0.0;
+        $totalBudgetAfterTax = 0.0;
+
+        foreach ($links as $link) {
+            $insight = $link['latest_insight'];
+
+            if ($insight) {
+                $totalViews    += (int) $insight['views'];
+                $totalLikes    += (int) $insight['likes'];
+                $totalComments += (int) $insight['comments'];
+                $totalShares   += (int) $insight['shares'];
+                $totalSaves    += (int) $insight['saves'];
+                $linksWithData++;
+            }
+
+            if ($link['budget'] !== null) {
+                $budget = (float) $link['budget'];
+                $totalBudget         += $budget;
+                // Summed per-creator (not totalBudget * 0.975 in one shot),
+                // so this stays correct if tax ever varies per creator.
+                $totalBudgetAfterTax += $budget * (1 - 0.025);
+            }
+        }
+
+        $totalEngagement = $totalLikes + $totalComments + $totalShares + $totalSaves;
+
+        return [
+            'total_views'            => $totalViews,
+            'total_engagement'       => $totalEngagement,
+            'total_likes'            => $totalLikes,
+            'total_comments'         => $totalComments,
+            'total_shares'           => $totalShares,
+            'total_saves'            => $totalSaves,
+            'avg_views'              => $linksWithData > 0 ? $totalViews / $linksWithData : 0,
+            'engagement_rate'        => $totalViews > 0 ? ($totalEngagement / $totalViews) * 100 : 0,
+            'share_rate'             => $totalViews > 0 ? ($totalShares / $totalViews) * 100 : 0,
+            'save_rate'              => $totalViews > 0 ? ($totalSaves / $totalViews) * 100 : 0,
+            'total_budget'           => $totalBudget,
+            'total_budget_after_tax' => $totalBudgetAfterTax,
+        ];
     }
 
     public function new()
@@ -76,12 +170,65 @@ class LinkController extends BaseController
 
         (new AuditLogger())->log(session()->get('user_id'), 'add_tiktok_link', 'tiktok_link', $linkId, ['url' => $data['url']]);
 
-        session()->setFlashdata('success', 'Link TikTok berhasil ditambahkan.');
+        $successMessage = 'Link TikTok berhasil ditambahkan.';
+
+        try {
+            $link = $linkModel->find($linkId);
+            (new TikTokTrackingService(new ScrapeTikTokDataSource()))->syncLink($link);
+            $linkModel->touchLastSynced($linkId);
+            $successMessage .= ' Metrics awal berhasil diambil.';
+        } catch (TikTokDataSourceException $e) {
+            log_message('error', "[tiktok/links/create] scrape gagal untuk link #{$linkId}: {$e}");
+            $successMessage .= ' Namun scrape metrics gagal: ' . $e->getMessage();
+        }
+
+        session()->setFlashdata('success', $successMessage);
 
         return redirect()->to('/tiktok/links');
     }
 
-    public function toggleActive(int $id)
+    public function refreshAll()
+    {
+        $this->requireCanManageLinks();
+
+        $linkModel = new TiktokLinkModel();
+        $links     = $linkModel->findAll();
+
+        if ($links === []) {
+            session()->setFlashdata('error', 'Belum ada link TikTok untuk di-refresh.');
+
+            return redirect()->to('/tiktok/links');
+        }
+
+        $trackingService = new TikTokTrackingService(new ScrapeTikTokDataSource());
+        $processed        = 0;
+        $failed           = 0;
+
+        foreach ($links as $link) {
+            try {
+                $trackingService->syncLink($link);
+                $linkModel->touchLastSynced($link['id']);
+                $processed++;
+            } catch (TikTokDataSourceException $e) {
+                $failed++;
+                log_message('error', "[tiktok/links/refresh-all] link #{$link['id']}: {$e}");
+            }
+        }
+
+        (new AuditLogger())->log(session()->get('user_id'), 'refresh_all_tiktok_links', 'tiktok_link', null, ['processed' => $processed, 'failed' => $failed]);
+
+        if ($failed === 0) {
+            session()->setFlashdata('success', "Metrics berhasil diperbarui untuk semua {$processed} link.");
+        } elseif ($processed > 0) {
+            session()->setFlashdata('success', "Metrics diperbarui: {$processed} berhasil, {$failed} gagal (lihat log untuk detail).");
+        } else {
+            session()->setFlashdata('error', "Semua {$failed} link gagal di-refresh (lihat log untuk detail).");
+        }
+
+        return redirect()->to('/tiktok/links');
+    }
+
+    public function delete(int $id)
     {
         $this->requireCanManageLinks();
 
@@ -94,12 +241,12 @@ class LinkController extends BaseController
             return redirect()->to('/tiktok/links');
         }
 
-        $newState = $link['is_active'] ? 0 : 1;
-        $linkModel->update($id, ['is_active' => $newState]);
+        // tiktok_insight_daily rows for this link cascade-delete via FK.
+        $linkModel->delete($id);
 
-        (new AuditLogger())->log(session()->get('user_id'), $newState ? 'activate_tiktok_link' : 'deactivate_tiktok_link', 'tiktok_link', $id);
+        (new AuditLogger())->log(session()->get('user_id'), 'delete_tiktok_link', 'tiktok_link', $id, ['url' => $link['url']]);
 
-        session()->setFlashdata('success', $newState ? 'Link diaktifkan kembali.' : 'Link dinonaktifkan — tidak akan disertakan di snapshot berikutnya.');
+        session()->setFlashdata('success', 'Link TikTok berhasil dihapus.');
 
         return redirect()->to('/tiktok/links');
     }

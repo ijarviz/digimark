@@ -2,29 +2,55 @@
 
 namespace App\Libraries\TikTok;
 
+use Config\Services;
+
 /**
- * NOT YET IMPLEMENTED — intentionally a stub.
- *
- * TikTok has no official API for pulling metrics from an arbitrary video
- * URL (PRD §5 Fase 4 / TDD §6). Picking a concrete approach (headless
- * browser automation, an undocumented internal endpoint, or a third-party
- * scraping service) is fragile, may violate TikTok's ToS, and is prone to
- * breaking without notice whenever TikTok changes its markup or adds
- * anti-bot measures. That choice needs an explicit decision with the user
- * before real logic is written here — see build prompt's "Yang Perlu
- * Dikonfirmasi" section.
- *
- * `snapshot:tiktok` already tolerates this throwing for every link (each
- * failure is caught and logged per-row, the loop still completes), so
- * wiring in a real implementation later is a drop-in replacement of this
- * class's body only — TikTokTrackingService and callers do not change.
+ * Fetches video stats via the local Playwright scraper service (see
+ * "scrapping sosmed" directory — a small Express server that reads TikTok's
+ * `__UNIVERSAL_DATA_FOR_REHYDRATION__` payload for a video page). That
+ * service must be running separately (`npm start` inside "scrapping
+ * sosmed"); this class is just an HTTP client for its `/api/video-stats`
+ * endpoint, matching the drop-in-replacement design noted in
+ * TikTokDataSourceInterface's doc comment.
  */
 class ScrapeTikTokDataSource implements TikTokDataSourceInterface
 {
     public function fetchMetrics(string $url): array
     {
-        throw new TikTokDataSourceException(
-            'ScrapeTikTokDataSource is not implemented yet — scraping method/library is pending a decision with the user (see class doc comment). URL: ' . $url
-        );
+        $baseUrl = rtrim(env('TIKTOK_SCRAPER_BASE_URL') ?: 'http://localhost:3000', '/');
+
+        try {
+            $response = Services::curlrequest()->get($baseUrl . '/api/video-stats', [
+                'query'       => ['url' => $url],
+                'http_errors' => false,
+                'timeout'     => 30,
+            ]);
+        } catch (\Throwable $e) {
+            throw new TikTokDataSourceException(
+                "Tidak bisa menghubungi scraper service di {$baseUrl} — pastikan sudah dijalankan (`npm start` di folder \"scrapping sosmed\"). " . $e->getMessage(),
+                previous: $e
+            );
+        }
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        if (! is_array($body) || isset($body['error'])) {
+            throw new TikTokDataSourceException($body['error'] ?? 'Respons scraper service tidak valid untuk URL: ' . $url);
+        }
+
+        foreach (['views', 'likes', 'comments', 'shares', 'saves'] as $field) {
+            if (! array_key_exists($field, $body)) {
+                throw new TikTokDataSourceException("Field '{$field}' tidak ada di respons scraper untuk URL: {$url}");
+            }
+        }
+
+        return [
+            'views'     => (int) $body['views'],
+            'likes'     => (int) $body['likes'],
+            'comments'  => (int) $body['comments'],
+            'shares'    => (int) $body['shares'],
+            'saves'     => (int) $body['saves'],
+            'posted_at' => ! empty($body['createTime']) ? date('Y-m-d H:i:s', (int) $body['createTime']) : null,
+        ];
     }
 }

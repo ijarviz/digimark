@@ -26,7 +26,7 @@
                 <select id="segment" name="segment" class="w-full h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
                     <option value="">- Pilih -</option>
                     <?php foreach ($segments as $segment): ?>
-                    <option value="<?= esc($segment) ?>" <?= old('segment') === $segment ? 'selected' : '' ?>><?= esc(ucfirst($segment)) ?></option>
+                    <option value="<?= esc($segment) ?>" <?= old('segment') === $segment ? 'selected' : '' ?>><?= esc(\App\Models\TiktokLinkModel::SEGMENT_LABELS[$segment] ?? $segment) ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -42,7 +42,7 @@
         </div>
 
         <div>
-            <label for="budget" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Budget (IDR)</label>
+            <label for="budget" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Budget + Voucher (IDR)</label>
             <input type="number" id="budget" name="budget" step="0.01" min="0" value="<?= esc(old('budget')) ?>"
                    class="w-full h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
         </div>

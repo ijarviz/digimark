@@ -3,6 +3,7 @@
 namespace App\Libraries\TikTok;
 
 use App\Models\TiktokInsightDailyModel;
+use App\Models\TiktokLinkModel;
 
 /**
  * Orchestrates fetching + persisting metrics for one tiktok_link. Depends
@@ -33,5 +34,11 @@ class TikTokTrackingService
             'saves'          => $metrics['saves'],
             'source'         => $tiktokLink['data_source'],
         ]);
+
+        // The video's upload date never changes once known, so only write it
+        // the first time it's available — no need to touch it on every sync.
+        if (! empty($metrics['posted_at']) && empty($tiktokLink['video_posted_at'])) {
+            (new TiktokLinkModel())->update($tiktokLink['id'], ['video_posted_at' => $metrics['posted_at']]);
+        }
     }
 }

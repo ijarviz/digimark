@@ -6,8 +6,15 @@ use CodeIgniter\Model;
 
 class TiktokLinkModel extends Model
 {
-    public const SEGMENTS = ['nano', 'micro', 'macro', 'celebrity'];
+    public const SEGMENTS = ['daily_life', 'mahasiswa', 'kantoran', 'irt'];
     public const GENDERS  = ['male', 'female', 'unisex', 'all'];
+
+    public const SEGMENT_LABELS = [
+        'daily_life' => 'Daily Life',
+        'mahasiswa'  => 'Mahasiswa',
+        'kantoran'   => 'Kantoran',
+        'irt'        => 'IRT',
+    ];
 
     protected $table         = 'tiktok_link';
     protected $primaryKey    = 'id';
@@ -17,6 +24,7 @@ class TiktokLinkModel extends Model
     protected $allowedFields = [
         'url',
         'tiktok_video_id',
+        'video_posted_at',
         'creator_handle',
         'affiliate_note',
         'segment',
@@ -34,7 +42,7 @@ class TiktokLinkModel extends Model
         // tiktok.com — valid_url_strict alone accepts any http(s) URL,
         // which previously let non-TikTok links be tracked silently.
         'url'     => 'required|max_length[500]|valid_url_strict[http,https]|regex_match[/^https?:\/\/([\w-]+\.)?tiktok\.com\//i]',
-        'segment' => 'permit_empty|in_list[nano,micro,macro,celebrity]',
+        'segment' => 'permit_empty|in_list[daily_life,mahasiswa,kantoran,irt]',
         'gender'  => 'permit_empty|in_list[male,female,unisex,all]',
         'budget'  => 'permit_empty|decimal',
     ];
