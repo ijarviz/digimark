@@ -53,4 +53,5 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
     $routes->post('ads-account/choose', 'Admin\AdsAccountController::choose');
 
     $routes->get('job-logs', 'Admin\JobLogController::index');
+    $routes->post('job-logs/toggle-monitoring', 'Admin\JobLogController::toggleMonitoring');
 });

@@ -1,3 +1,24 @@
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-card-padding mb-gutter flex items-center justify-between">
+    <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined <?= $monitoringEnabled ? 'text-tertiary' : 'text-error' ?>"><?= $monitoringEnabled ? 'monitor_heart' : 'pause_circle' ?></span>
+        <div>
+            <div class="font-body-md text-body-md text-on-surface">Job Monitoring: <strong><?= $monitoringEnabled ? 'Aktif' : 'Nonaktif' ?></strong></div>
+            <div class="text-body-sm font-body-sm text-on-surface-variant">
+                <?= $monitoringEnabled
+                    ? 'Snapshot/publish job berjalan sesuai jadwal.'
+                    : 'Semua snapshot/publish job dilewati sampai diaktifkan lagi.' ?>
+            </div>
+        </div>
+    </div>
+    <form method="post" action="<?= base_url('admin/job-logs/toggle-monitoring') ?>">
+        <?= csrf_field() ?>
+        <button type="submit" class="<?= $monitoringEnabled ? 'bg-error text-on-error' : 'bg-primary text-on-primary' ?> font-body-md text-body-md px-4 py-2 rounded shadow hover:opacity-90 transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm"><?= $monitoringEnabled ? 'pause_circle' : 'play_circle' ?></span>
+            <?= $monitoringEnabled ? 'Nonaktifkan Job Monitoring' : 'Aktifkan Job Monitoring' ?>
+        </button>
+    </form>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-gutter">
     <div class="bg-surface-container-lowest p-card-padding border border-outline-variant rounded-lg">
         <h3 class="text-label-caps font-label-caps text-on-surface-variant mb-2">24H Success Rate</h3>

@@ -2,6 +2,7 @@
 
 namespace App\Commands;
 
+use App\Models\JobMonitoringSettingModel;
 use App\Models\JobRunLogModel;
 use CodeIgniter\CLI\BaseCommand;
 use CodeIgniter\CLI\CLI;
@@ -28,7 +29,14 @@ abstract class BaseSnapshotCommand extends BaseCommand
 
     final public function run(array $params)
     {
-        $jobName   = $this->jobName();
+        $jobName = $this->jobName();
+
+        if (! (new JobMonitoringSettingModel())->isEnabled()) {
+            CLI::write("Job monitoring dinonaktifkan — job '{$jobName}' dilewati.", 'yellow');
+
+            return;
+        }
+
         $startedAt = date('Y-m-d H:i:s');
 
         CLI::write("Starting job: {$jobName}", 'yellow');
