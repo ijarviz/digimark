@@ -67,6 +67,9 @@ class LinkController extends BaseController
                 'segments' => TiktokLinkModel::SEGMENTS,
                 'summary' => $this->buildSummary($links),
             ],
+            'extraBodyScripts' => [
+                base_url('assets/js/tiktok-links.js'),
+            ],
         ]);
     }
 
@@ -187,45 +190,60 @@ class LinkController extends BaseController
         return redirect()->to('/tiktok/links');
     }
 
-    public function refreshAll()
+    /**
+     * AJAX endpoint — the "Refresh All" button on the links page calls this
+     * once per link (sequentially, client-side) instead of one big blocking
+     * POST, so the page never freezes and each row can show its own
+     * in-flight spinner. Returns JSON, never redirects.
+     */
+    public function refreshOne(int $id)
     {
         $this->requireCanManageLinks();
+        helper('format');
 
         $linkModel = new TiktokLinkModel();
-        $links     = $linkModel->findAll();
+        $link      = $linkModel->find($id);
 
-        if ($links === []) {
-            session()->setFlashdata('error', 'Belum ada link TikTok untuk di-refresh.');
-
-            return redirect()->to('/tiktok/links');
+        if (! $link) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'success' => false,
+                'message' => 'Link tidak ditemukan.',
+            ]);
         }
 
-        $trackingService = new TikTokTrackingService(new ScrapeTikTokDataSource());
-        $processed        = 0;
-        $failed           = 0;
+        try {
+            (new TikTokTrackingService(new ScrapeTikTokDataSource()))->syncLink($link);
+            $linkModel->touchLastSynced($id);
+            (new AuditLogger())->log(session()->get('user_id'), 'refresh_tiktok_link', 'tiktok_link', $id);
 
-        foreach ($links as $link) {
-            try {
-                $trackingService->syncLink($link);
-                $linkModel->touchLastSynced($link['id']);
-                $processed++;
-            } catch (TikTokDataSourceException $e) {
-                $failed++;
-                log_message('error', "[tiktok/links/refresh-all] link #{$link['id']}: {$e}");
-            }
+            $updated = $linkModel->find($id);
+            $insight = (new TiktokInsightDailyModel())->latestByLink($id);
+
+            $metric = static fn (?int $value) => [
+                'compact' => format_compact_number($value),
+                'exact'   => number_format((int) $value, 0, ',', '.'),
+            ];
+
+            return $this->response->setJSON([
+                'success'         => true,
+                'message'         => 'Metrics berhasil diperbarui.',
+                'views'           => $metric($insight['views'] ?? null),
+                'likes'           => $metric($insight['likes'] ?? null),
+                'comments'        => $metric($insight['comments'] ?? null),
+                'shares'          => $metric($insight['shares'] ?? null),
+                'saves'           => $metric($insight['saves'] ?? null),
+                'snapshot_date'   => $insight['snapshot_date'] ?? null,
+                'last_synced_at'  => $updated['last_synced_at'] ?? null,
+                'video_posted_at' => $updated['video_posted_at'] ? date('d M Y', strtotime($updated['video_posted_at'])) : null,
+            ]);
+        } catch (TikTokDataSourceException $e) {
+            log_message('error', "[tiktok/links/refresh-one] link #{$id}: {$e}");
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Gagal memperbarui metrics: ' . $e->getMessage(),
+            ]);
         }
-
-        (new AuditLogger())->log(session()->get('user_id'), 'refresh_all_tiktok_links', 'tiktok_link', null, ['processed' => $processed, 'failed' => $failed]);
-
-        if ($failed === 0) {
-            session()->setFlashdata('success', "Metrics berhasil diperbarui untuk semua {$processed} link.");
-        } elseif ($processed > 0) {
-            session()->setFlashdata('success', "Metrics diperbarui: {$processed} berhasil, {$failed} gagal (lihat log untuk detail).");
-        } else {
-            session()->setFlashdata('error', "Semua {$failed} link gagal di-refresh (lihat log untuk detail).");
-        }
-
-        return redirect()->to('/tiktok/links');
     }
 
     public function delete(int $id)

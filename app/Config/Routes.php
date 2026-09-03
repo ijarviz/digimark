@@ -26,7 +26,7 @@ $routes->group('', ['filter' => 'role:admin,content_manager'], static function (
     $routes->get('tiktok/links/new', 'TikTok\LinkController::new');
     $routes->post('tiktok/links', 'TikTok\LinkController::create');
     $routes->post('tiktok/links/(:num)/delete', 'TikTok\LinkController::delete/$1');
-    $routes->post('tiktok/links/refresh-all', 'TikTok\LinkController::refreshAll');
+    $routes->post('tiktok/links/(:num)/refresh-one', 'TikTok\LinkController::refreshOne/$1');
 
     $routes->get('publish', 'Instagram\PublishController::index');
     $routes->get('publish/new', 'Instagram\PublishController::new');

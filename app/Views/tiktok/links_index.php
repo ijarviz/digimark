@@ -5,14 +5,12 @@
         <span class="text-body-sm font-body-sm text-on-surface-variant">Showing <strong class="text-on-surface"><?= count($links) ?></strong> tracked entities</span>
     </div>
     <?php if ($canEdit): ?>
-    <div class="flex items-center gap-2">
-        <form method="post" action="<?= base_url('tiktok/links/refresh-all') ?>">
-            <?= csrf_field() ?>
-            <button type="submit" class="bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md px-4 py-2 rounded hover:bg-surface-container-low transition-all flex items-center gap-2" title="Refresh views & engagement untuk semua link">
-                <span class="material-symbols-outlined text-sm">refresh</span>
-                Refresh All
-            </button>
-        </form>
+    <div class="flex items-center gap-3">
+        <span id="refresh-all-status" class="text-body-sm font-body-sm text-on-surface-variant"></span>
+        <button type="button" id="refresh-all-btn" class="bg-surface-container-lowest border border-outline-variant text-on-surface font-body-md text-body-md px-4 py-2 rounded hover:bg-surface-container-low transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed" title="Refresh views & engagement untuk semua link, satu per satu">
+            <span id="refresh-all-icon" class="material-symbols-outlined text-sm">refresh</span>
+            <span id="refresh-all-label">Refresh All</span>
+        </button>
         <a href="<?= base_url('tiktok/links/new') ?>" class="bg-primary text-on-primary font-body-md text-body-md px-4 py-2 rounded shadow hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center gap-2">
             <span class="material-symbols-outlined text-sm">add_link</span>
             Add TikTok Link
@@ -130,7 +128,7 @@
             <tr><td colspan="11" class="py-4 px-4 text-on-surface-variant text-body-sm font-body-sm">Belum ada link TikTok.</td></tr>
             <?php endif; ?>
             <?php foreach ($links as $link): $insight = $link['latest_insight']; $initial = strtoupper(substr(ltrim($link['creator_handle'] ?? $link['url'], '@'), 0, 1)); ?>
-            <tr class="hover:bg-surface-container-low transition-colors group h-12">
+            <tr class="hover:bg-surface-container-low transition-colors group h-12" data-link-id="<?= $link['id'] ?>">
                 <td class="py-2 px-4 text-center">
                     <?php if ($link['is_active']): ?>
                     <div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center mx-auto" title="Aktif">
@@ -150,6 +148,10 @@
                                 <?= esc($link['creator_handle'] ?: 'Link #' . $link['id']) ?>
                                 <span class="material-symbols-outlined text-[12px]">open_in_new</span>
                             </a>
+                            <span id="spinner-<?= $link['id'] ?>" class="items-center gap-1 text-primary mt-0.5" style="display:none" title="Sedang di-refresh...">
+                                <span class="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
+                                <span class="text-[10px] font-body-sm">Refreshing...</span>
+                            </span>
                         </div>
                     </div>
                 </td>
@@ -169,34 +171,34 @@
                     </span>
                 </td>
                 <td class="py-2 px-4 font-data-mono text-data-mono text-on-surface-variant">
-                    <?= $link['video_posted_at'] ? esc(date('d M Y', strtotime($link['video_posted_at']))) : '-' ?>
+                    <span id="posted-<?= $link['id'] ?>"><?= $link['video_posted_at'] ? esc(date('d M Y', strtotime($link['video_posted_at']))) : '-' ?></span>
                 </td>
                 <td class="py-2 px-4 text-right">
-                    <div class="font-data-mono text-data-mono text-on-surface" title="<?= isset($insight['views']) ? number_format((int) $insight['views'], 0, ',', '.') : '' ?>"><?= format_compact_number($insight['views'] ?? null) ?></div>
+                    <div id="views-<?= $link['id'] ?>" class="font-data-mono text-data-mono text-on-surface" title="<?= isset($insight['views']) ? number_format((int) $insight['views'], 0, ',', '.') : '' ?>"><?= format_compact_number($insight['views'] ?? null) ?></div>
                 </td>
                 <td class="py-2 px-4 text-right">
                     <div class="flex justify-end gap-3 text-on-surface-variant">
-                        <div class="flex items-center gap-1" title="Likes: <?= isset($insight['likes']) ? number_format((int) $insight['likes'], 0, ',', '.') : '--' ?>">
+                        <div id="likes-wrap-<?= $link['id'] ?>" class="flex items-center gap-1" title="Likes: <?= isset($insight['likes']) ? number_format((int) $insight['likes'], 0, ',', '.') : '--' ?>">
                             <span class="material-symbols-outlined text-[14px]">favorite</span>
-                            <span class="font-data-mono text-data-mono"><?= format_compact_number($insight['likes'] ?? null) ?></span>
+                            <span id="likes-<?= $link['id'] ?>" class="font-data-mono text-data-mono"><?= format_compact_number($insight['likes'] ?? null) ?></span>
                         </div>
-                        <div class="flex items-center gap-1" title="Comments: <?= isset($insight['comments']) ? number_format((int) $insight['comments'], 0, ',', '.') : '--' ?>">
+                        <div id="comments-wrap-<?= $link['id'] ?>" class="flex items-center gap-1" title="Comments: <?= isset($insight['comments']) ? number_format((int) $insight['comments'], 0, ',', '.') : '--' ?>">
                             <span class="material-symbols-outlined text-[14px]">chat_bubble</span>
-                            <span class="font-data-mono text-data-mono"><?= format_compact_number($insight['comments'] ?? null) ?></span>
+                            <span id="comments-<?= $link['id'] ?>" class="font-data-mono text-data-mono"><?= format_compact_number($insight['comments'] ?? null) ?></span>
                         </div>
-                        <div class="flex items-center gap-1" title="Shares: <?= isset($insight['shares']) ? number_format((int) $insight['shares'], 0, ',', '.') : '--' ?>">
+                        <div id="shares-wrap-<?= $link['id'] ?>" class="flex items-center gap-1" title="Shares: <?= isset($insight['shares']) ? number_format((int) $insight['shares'], 0, ',', '.') : '--' ?>">
                             <span class="material-symbols-outlined text-[14px]">share</span>
-                            <span class="font-data-mono text-data-mono"><?= format_compact_number($insight['shares'] ?? null) ?></span>
+                            <span id="shares-<?= $link['id'] ?>" class="font-data-mono text-data-mono"><?= format_compact_number($insight['shares'] ?? null) ?></span>
                         </div>
-                        <div class="flex items-center gap-1" title="Saves: <?= isset($insight['saves']) ? number_format((int) $insight['saves'], 0, ',', '.') : '--' ?>">
+                        <div id="saves-wrap-<?= $link['id'] ?>" class="flex items-center gap-1" title="Saves: <?= isset($insight['saves']) ? number_format((int) $insight['saves'], 0, ',', '.') : '--' ?>">
                             <span class="material-symbols-outlined text-[14px]">bookmark</span>
-                            <span class="font-data-mono text-data-mono"><?= format_compact_number($insight['saves'] ?? null) ?></span>
+                            <span id="saves-<?= $link['id'] ?>" class="font-data-mono text-data-mono"><?= format_compact_number($insight['saves'] ?? null) ?></span>
                         </div>
                     </div>
                 </td>
                 <td class="py-2 px-4">
-                    <div class="font-data-mono text-data-mono text-on-surface-variant"><?= esc($insight['snapshot_date'] ?? '-') ?></div>
-                    <div class="text-[10px] text-on-surface-variant">Sync: <?= esc($link['last_synced_at'] ?? '-') ?></div>
+                    <div id="snapshot-<?= $link['id'] ?>" class="font-data-mono text-data-mono text-on-surface-variant"><?= esc($insight['snapshot_date'] ?? '-') ?></div>
+                    <div class="text-[10px] text-on-surface-variant">Sync: <span id="synced-<?= $link['id'] ?>"><?= esc($link['last_synced_at'] ?? '-') ?></span></div>
                 </td>
                 <?php if ($canEdit): ?>
                 <td class="py-2 px-4 text-center">
@@ -216,3 +218,7 @@
         </table>
     </div>
 </div>
+
+<script>
+window.__TIKTOK_LINKS_BASE_URL__ = <?= json_encode(base_url('tiktok/links')) ?>;
+</script>
