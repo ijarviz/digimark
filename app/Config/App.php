@@ -180,7 +180,14 @@ class App extends BaseConfig
      *
      * @var array<string, string>
      */
-    public array $proxyIPs = [];
+    public array $proxyIPs = [
+        // Requests reach this app only via HAProxy on the loopback, which sits
+        // behind Cloudflare. Trust that hop and take the real visitor IP from
+        // the header Cloudflare sets, so per-IP logic (login throttle, audit
+        // log) isn't keyed on 127.0.0.1 for every visitor.
+        '127.0.0.1' => 'CF-Connecting-IP',
+        '::1'       => 'CF-Connecting-IP',
+    ];
 
     /**
      * --------------------------------------------------------------------------
