@@ -12,7 +12,7 @@ use CodeIgniter\Config\BaseConfig;
  * result. Same .env-based secret handling as every other credential in
  * this project — gitignored, never in a tracked file.
  *
- *   github.repo  = 'owner/name'   (e.g. RaihanFirdhan/DM-DATA-)
+ *   github.repo  = 'owner/name'   (e.g. ijarviz/digimark)
  *   github.token = 'github_pat_...'
  */
 class Github extends BaseConfig
