@@ -1,7 +1,6 @@
 (function () {
     var baseUrl = window.__TIKTOK_LINKS_BASE_URL__;
-    var btn = document.getElementById('refresh-all-btn');
-    if (!baseUrl || !btn) {
+    if (!baseUrl) {
         return;
     }
 
@@ -13,11 +12,69 @@
     var csrfHeader = window.__CSRF_HEADER__;
     var csrfToken = window.__CSRF_TOKEN__;
 
-    var icon = document.getElementById('refresh-all-icon');
-    var label = document.getElementById('refresh-all-label');
+    var allBtn = document.getElementById('refresh-all-btn');
+    var allIcon = document.getElementById('refresh-all-icon');
+    var allLabel = document.getElementById('refresh-all-label');
     var status = document.getElementById('refresh-all-status');
+    var rowButtons = document.querySelectorAll('.refresh-one-btn');
 
-    btn.addEventListener('click', runRefreshAll);
+    if (!allBtn && !rowButtons.length) {
+        return;
+    }
+
+    // There is one scraper with a single serialized queue behind it, so the
+    // "Refresh All" walk and a per-row refresh must never run at the same
+    // time. This guard disables every refresh control while any refresh is
+    // in flight.
+    var busy = false;
+
+    function setBusy(state) {
+        busy = state;
+        if (allBtn) {
+            allBtn.disabled = state;
+        }
+        Array.prototype.forEach.call(rowButtons, function (b) {
+            b.disabled = state;
+        });
+    }
+
+    if (allBtn) {
+        allBtn.addEventListener('click', runRefreshAll);
+    }
+
+    Array.prototype.forEach.call(rowButtons, function (b) {
+        b.addEventListener('click', function () {
+            if (busy) {
+                return;
+            }
+
+            var id = b.getAttribute('data-link-id');
+            if (!id) {
+                return;
+            }
+
+            setBusy(true);
+            var rowIcon = b.querySelector('.material-symbols-outlined');
+            if (rowIcon) {
+                rowIcon.classList.add('animate-spin');
+            }
+            if (status) {
+                status.textContent = 'Refresh link #' + id + '...';
+            }
+
+            refreshOne(id).then(function (ok) {
+                if (rowIcon) {
+                    rowIcon.classList.remove('animate-spin');
+                }
+                if (status) {
+                    status.textContent = ok
+                        ? 'Link #' + id + ' berhasil diperbarui.'
+                        : 'Link #' + id + ' gagal di-refresh.';
+                }
+                setBusy(false);
+            });
+        });
+    });
 
     function runRefreshAll() {
         var rows = document.querySelectorAll('tr[data-link-id]');
@@ -29,9 +86,9 @@
             return;
         }
 
-        btn.disabled = true;
-        icon.classList.add('animate-spin');
-        label.textContent = 'Refreshing...';
+        setBusy(true);
+        allIcon.classList.add('animate-spin');
+        allLabel.textContent = 'Refreshing...';
         status.textContent = '';
 
         var succeeded = 0;
@@ -61,9 +118,9 @@
         }
 
         function finish() {
-            btn.disabled = false;
-            icon.classList.remove('animate-spin');
-            label.textContent = 'Refresh All';
+            setBusy(false);
+            allIcon.classList.remove('animate-spin');
+            allLabel.textContent = 'Refresh All';
             status.textContent = failed === 0
                 ? succeeded + ' link berhasil diperbarui.'
                 : succeeded + ' berhasil, ' + failed + ' gagal.';

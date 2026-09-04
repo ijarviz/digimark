@@ -213,6 +213,9 @@
                 <?php if ($canEdit): ?>
                 <td class="py-2 px-4 text-center">
                     <div class="flex items-center justify-center gap-1">
+                        <button type="button" class="refresh-one-btn p-1 rounded text-on-surface-variant hover:bg-surface-container-highest hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed" data-link-id="<?= $link['id'] ?>" title="Ambil ulang views &amp; engagement untuk link ini">
+                            <span class="material-symbols-outlined text-[18px]">refresh</span>
+                        </button>
                         <form method="post" action="<?= base_url('tiktok/links/' . $link['id'] . '/delete') ?>" onsubmit="return confirm('Hapus link ini beserta seluruh riwayat metrics-nya? Tindakan ini tidak bisa dibatalkan.');">
                             <?= csrf_field() ?>
                             <button type="submit" class="p-1 rounded text-on-surface-variant hover:bg-error-container hover:text-on-error-container transition-colors" title="Hapus link">
