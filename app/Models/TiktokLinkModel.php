@@ -34,6 +34,7 @@ class TiktokLinkModel extends Model
         'is_active',
         'last_synced_at',
         'added_by',
+        'discovery_source',
         'created_at',
     ];
 

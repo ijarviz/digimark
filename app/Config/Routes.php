@@ -19,6 +19,8 @@ $routes->group('', ['filter' => 'role:admin,content_manager,viewer'], static fun
     $routes->get('dashboard/tiktok', 'TikTok\DashboardController::index');
 
     $routes->get('tiktok/links', 'TikTok\LinkController::index');
+
+    $routes->get('discovery/influencers', 'Discovery\InfluencerDiscoveryController::index');
 });
 
 // TikTok link management + Instagram publish — content_manager + admin only.
@@ -27,6 +29,8 @@ $routes->group('', ['filter' => 'role:admin,content_manager'], static function (
     $routes->post('tiktok/links', 'TikTok\LinkController::create');
     $routes->post('tiktok/links/(:num)/delete', 'TikTok\LinkController::delete/$1');
     $routes->post('tiktok/links/(:num)/refresh-one', 'TikTok\LinkController::refreshOne/$1');
+
+    $routes->post('discovery/influencers/save', 'Discovery\InfluencerDiscoveryController::save');
 
     $routes->get('publish', 'Instagram\PublishController::index');
     $routes->get('publish/new', 'Instagram\PublishController::new');

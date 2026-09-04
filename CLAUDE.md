@@ -128,6 +128,31 @@ Mitigations in place (all env-tunable, see the systemd unit):
   through it. A residential/mobile proxy is the actual cure for the IP blocking; not yet
   configured.
 
+### Influencer Discovery
+Page at **`/discovery/influencers`** (`Discovery\InfluencerDiscoveryController`) — searches
+Instagram and TikTok **by keyword/niche** (not a known handle) via Apify actors and lists
+matching accounts with follower count/bio. Viewable by all three roles like the dashboards;
+saving a result is `admin,content_manager` only, same split as `tiktok/links`. Distinct from
+`ScrapeTikTokDataSource`, which only reads metrics for a URL you already have — this is for
+finding accounts you don't know about yet.
+
+`App\Libraries\Discovery\ApifyDiscoveryService` calls Apify's `run-sync-get-dataset-items`
+(blocks until the run finishes) via CI4 `CURLRequest`, using `APIFY_TOKEN` from `.env`:
+- Instagram: `apify/instagram-search-scraper`, `searchType=user` — returns profiles directly.
+- TikTok: `clockworks/tiktok-scraper` has no dedicated profile-search mode — with
+  `searchSection=/user` it returns one **video** per matched profile (`resultsPerPage=1`), and
+  the profile itself is read out of that video's `authorMeta` (handle, `fans`, `signature`, …).
+
+A search can take up to ~60–70s per platform (Apify's own run budget), so the `digi-mark`
+HAProxy backend carries a `timeout server 180s` override (see Deployment below) — the shared
+50s default would cut the request off mid-search.
+
+"Simpan ke tracking" (TikTok results only — `tiktok_link.url` validation requires a
+`tiktok.com` URL, so there's nowhere to put an Instagram find yet) inserts into `tiktok_link`
+with `discovery_source = 'apify'` (shown as a small badge on `tiktok/links`) and **`is_active =
+0`**: a discovered row holds a *profile* URL, not a *video* URL, so `snapshot:tiktok` /
+`refresh-one` have nothing to scrape until someone edits in a real video link and activates it.
+
 ### Improve Me (Jarvis Power menu)
 Admin-only page at **`/admin/improve-me`** (`Admin\Improve\ImproveMeController`, route filter
 `role:admin` + the role re-checked in the controller). An admin types a prompt; the app opens
@@ -152,6 +177,7 @@ Beyond the standard CI4 keys (`CI_ENVIRONMENT`, `app.baseURL`, `database.default
 | `IG_APP_ID`, `IG_APP_SECRET` | Meta app — bootstrap fallback for `meta_app_config` |
 | `IG_REDIRECT_URI` | OAuth callback, must match `/admin/ig-account/callback` |
 | `github.repo`, `github.token` | "Improve Me" — repo (`owner/name`) + fine-grained PAT (Issues: R/W) for the GitHub-issue bridge |
+| `APIFY_TOKEN` | Influencer Discovery — Apify account token used to run the search actors |
 | `TIKTOK_SCRAPER_BASE_URL` | URL of the `scrapping sosmed` service |
 | `SEED_ADMIN_USERNAME` / `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | consumed by `AdminUserSeeder`; if password unset it auto-generates one and prints it once |
 
@@ -168,7 +194,9 @@ Wired the same way as the sibling sites (Apache high port ← HAProxy host ACL),
   origin certificate yet**; `app.forceGlobalSecureRequests` must stay **off** or CI4 will
   redirect-loop behind Cloudflare. To move to real end-to-end TLS: drop a combined PEM in
   `/etc/haproxy/certs/dm.autogroup.co.id.pem`, add the `use_backend digi-mark` line to
-  `https_in`, switch Cloudflare to Full (strict).
+  `https_in`, switch Cloudflare to Full (strict). `backend digi-mark` also carries a
+  `timeout server 180s` override (shared default is 50s) for Influencer Discovery's
+  synchronous Apify calls — see that section above.
 - **Real client IP**: every request arrives from HAProxy on `127.0.0.1`, so
   `App::$proxyIPs` trusts loopback and reads the visitor IP from Cloudflare's
   `CF-Connecting-IP` header. Without this the login throttle (`LoginController`, 5 tries /

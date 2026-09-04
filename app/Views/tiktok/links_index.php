@@ -162,6 +162,11 @@
                                 <span class="material-symbols-outlined text-[12px] animate-spin">progress_activity</span>
                                 <span class="text-[10px] font-body-sm">Refreshing...</span>
                             </span>
+                            <?php if (($link['discovery_source'] ?? null) === 'apify'): ?>
+                            <span class="inline-flex items-center gap-0.5 text-[10px] text-on-surface-variant mt-0.5" title="Ditemukan lewat Influencer Discovery (Apify)">
+                                <span class="material-symbols-outlined text-[11px]">person_search</span>via Apify
+                            </span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </td>
