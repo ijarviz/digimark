@@ -39,6 +39,8 @@ php spark migrate:rollback            # undo last batch
 php spark db:seed DatabaseSeeder      # RoleSeeder + AdminUserSeeder (creates admin user)
 php spark dev:seed-fake-data          # fills dashboards with fake IG/TikTok data — CI_ENVIRONMENT=development ONLY
 
+cd "scrapping sosmed" && npm install && npm start  # run the TikTok scraper locally for dev — default port 3000, override with env PORT
+
 vendor/bin/phpunit                    # full test suite (single "App" suite = ./tests)
 vendor/bin/phpunit tests/unit/HealthTest.php          # one file
 vendor/bin/phpunit --filter testHealthEndpoint        # one method
