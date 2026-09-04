@@ -21,6 +21,7 @@ class LinkController extends BaseController
         $dateFrom = (string) $this->request->getGet('date_from');
         $dateTo   = (string) $this->request->getGet('date_to');
         $segment  = (string) $this->request->getGet('segment');
+        $sort     = (string) $this->request->getGet('sort');
 
         $builder = $linkModel->orderBy('created_at', 'DESC');
 
@@ -50,6 +51,8 @@ class LinkController extends BaseController
         }
         unset($link);
 
+        $links = $this->applySort($links, $sort);
+
         return view('layouts/main', [
             'title'       => 'TikTok Tracking Modules',
             'subtitle'    => 'Monitor and orchestrate metrics for individual TikTok video links.',
@@ -63,6 +66,7 @@ class LinkController extends BaseController
                     'date_from' => $dateFrom,
                     'date_to'   => $dateTo,
                     'segment'   => $segment,
+                    'sort'      => $sort,
                 ],
                 'segments' => TiktokLinkModel::SEGMENTS,
                 'summary' => $this->buildSummary($links),
@@ -71,6 +75,47 @@ class LinkController extends BaseController
                 base_url('assets/js/tiktok-links.js'),
             ],
         ]);
+    }
+
+    /**
+     * Sorted in PHP rather than SQL because views live in
+     * tiktok_insight_daily (already fetched per-link above as
+     * latest_insight), not on tiktok_link — sorting both budget and views
+     * here keeps the two consistent. Links missing the sorted field (no
+     * budget set, or never synced) always sink to the bottom regardless of
+     * direction, so unknown values don't masquerade as "highest"/"lowest".
+     */
+    private function applySort(array $links, string $sort): array
+    {
+        $byBudget = static fn (array $link) => $link['budget'] !== null ? (float) $link['budget'] : null;
+        $byViews  = static fn (array $link) => isset($link['latest_insight']['views']) ? (int) $link['latest_insight']['views'] : null;
+
+        $comparator = match ($sort) {
+            'budget_desc' => static fn ($a, $b) => self::compareNullsLast($byBudget($a), $byBudget($b), true),
+            'budget_asc'  => static fn ($a, $b) => self::compareNullsLast($byBudget($a), $byBudget($b), false),
+            'views_desc'  => static fn ($a, $b) => self::compareNullsLast($byViews($a), $byViews($b), true),
+            'views_asc'   => static fn ($a, $b) => self::compareNullsLast($byViews($a), $byViews($b), false),
+            default       => null,
+        };
+
+        if ($comparator !== null) {
+            usort($links, $comparator);
+        }
+
+        return $links;
+    }
+
+    private static function compareNullsLast(?float $a, ?float $b, bool $descending): int
+    {
+        if ($a === null) {
+            return $b === null ? 0 : 1;
+        }
+
+        if ($b === null) {
+            return -1;
+        }
+
+        return $descending ? $b <=> $a : $a <=> $b;
     }
 
     /**
@@ -206,8 +251,9 @@ class LinkController extends BaseController
 
         if (! $link) {
             return $this->response->setStatusCode(404)->setJSON([
-                'success' => false,
-                'message' => 'Link tidak ditemukan.',
+                'success'    => false,
+                'message'    => 'Link tidak ditemukan.',
+                'csrf_token' => csrf_hash(),
             ]);
         }
 
@@ -235,13 +281,15 @@ class LinkController extends BaseController
                 'snapshot_date'   => $insight['snapshot_date'] ?? null,
                 'last_synced_at'  => $updated['last_synced_at'] ?? null,
                 'video_posted_at' => $updated['video_posted_at'] ? date('d M Y', strtotime($updated['video_posted_at'])) : null,
+                'csrf_token'      => csrf_hash(),
             ]);
         } catch (TikTokDataSourceException $e) {
             log_message('error', "[tiktok/links/refresh-one] link #{$id}: {$e}");
 
             return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Gagal memperbarui metrics: ' . $e->getMessage(),
+                'success'    => false,
+                'message'    => 'Gagal memperbarui metrics: ' . $e->getMessage(),
+                'csrf_token' => csrf_hash(),
             ]);
         }
     }

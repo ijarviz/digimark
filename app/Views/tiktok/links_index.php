@@ -94,11 +94,21 @@
             <?php endforeach; ?>
         </select>
     </div>
+    <div class="flex flex-col gap-1">
+        <label for="filter-sort" class="font-label-caps text-label-caps text-on-surface-variant">Urutkan</label>
+        <select id="filter-sort" name="sort" class="bg-surface border border-outline-variant rounded px-3 py-2 text-body-sm font-body-sm text-on-surface">
+            <option value="">Terbaru ditambahkan</option>
+            <option value="budget_desc" <?= $filters['sort'] === 'budget_desc' ? 'selected' : '' ?>>Budget Tertinggi</option>
+            <option value="budget_asc" <?= $filters['sort'] === 'budget_asc' ? 'selected' : '' ?>>Budget Terendah</option>
+            <option value="views_desc" <?= $filters['sort'] === 'views_desc' ? 'selected' : '' ?>>Views Tertinggi</option>
+            <option value="views_asc" <?= $filters['sort'] === 'views_asc' ? 'selected' : '' ?>>Views Terendah</option>
+        </select>
+    </div>
     <button type="submit" class="bg-primary text-on-primary font-body-md text-body-md px-4 py-2 rounded shadow hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center gap-2">
         <span class="material-symbols-outlined text-sm">filter_alt</span>
         Filter
     </button>
-    <?php if ($filters['q'] !== '' || $filters['date_from'] !== '' || $filters['date_to'] !== '' || $filters['segment'] !== ''): ?>
+    <?php if ($filters['q'] !== '' || $filters['date_from'] !== '' || $filters['date_to'] !== '' || $filters['segment'] !== '' || $filters['sort'] !== ''): ?>
     <a href="<?= base_url('tiktok/links') ?>" class="text-body-sm font-body-sm text-on-surface-variant hover:text-primary px-2 py-2">Reset</a>
     <?php endif; ?>
 </form>
@@ -221,4 +231,6 @@
 
 <script>
 window.__TIKTOK_LINKS_BASE_URL__ = <?= json_encode(base_url('tiktok/links')) ?>;
+window.__CSRF_HEADER__ = <?= json_encode(csrf_header()) ?>;
+window.__CSRF_TOKEN__ = <?= json_encode(csrf_hash()) ?>;
 </script>

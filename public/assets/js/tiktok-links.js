@@ -5,6 +5,14 @@
         return;
     }
 
+    // The CSRF cookie is HttpOnly (by design — document.cookie can't read
+    // it), so the token is tracked here as plain JS state instead: seeded
+    // from the page's initial render, then replaced after every request
+    // with the fresh value the server sends back in the JSON response
+    // (the CSRF filter regenerates the hash on every valid submission).
+    var csrfHeader = window.__CSRF_HEADER__;
+    var csrfToken = window.__CSRF_TOKEN__;
+
     var icon = document.getElementById('refresh-all-icon');
     var label = document.getElementById('refresh-all-label');
     var status = document.getElementById('refresh-all-status');
@@ -60,16 +68,19 @@
     function refreshOne(id) {
         showSpinner(id, true);
 
+        var headers = { 'X-Requested-With': 'XMLHttpRequest' };
+        headers[csrfHeader] = csrfToken;
+
         return fetch(baseUrl + '/' + id + '/refresh-one', {
             method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': getCsrfToken(),
-                'X-Requested-With': 'XMLHttpRequest',
-            },
+            headers: headers,
         })
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 showSpinner(id, false);
+                if (data.csrf_token) {
+                    csrfToken = data.csrf_token;
+                }
                 if (data.success) {
                     applyUpdate(id, data);
                     return true;
@@ -80,11 +91,6 @@
                 showSpinner(id, false);
                 return false;
             });
-    }
-
-    function getCsrfToken() {
-        var match = document.cookie.match(/(?:^|; )csrf_cookie_name=([^;]*)/);
-        return match ? decodeURIComponent(match[1]) : '';
     }
 
     function showSpinner(id, visible) {
