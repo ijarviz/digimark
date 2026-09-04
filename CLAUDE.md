@@ -109,13 +109,22 @@ rendering public profile pages headless (no login). The CI4 app reaches it at
 Playwright is **pinned to 1.49.1** here because the server runs Node 18 (1.50+ requires Node 20).
 
 It reads TikTok's `#__UNIVERSAL_DATA_FOR_REHYDRATION__` JSON blob from the video page. When
-that blob is missing it throws *"Tidak menemukan data video"* — which means any of: a genuinely
-bad/truncated/duplicate URL, a deleted/private video, **or** (most common in bulk) TikTok
-served a bot-check page instead of the video. This server is a datacenter IP with no proxy,
-so **bursts get rate-limited**: `snapshot:tiktok` cron and the "Refresh All" button both walk
-~100 links and a chunk fail once TikTok trips. Paced one-at-a-time with a few seconds gap the
-same links succeed. Durable fixes (not yet done): a residential/mobile proxy, spacing the
-Refresh-All JS loop, and a retry-with-backoff in the scraper.
+that blob is missing the lookup fails — either a genuinely bad/truncated/duplicate URL or a
+deleted/private video (*"Tidak menemukan data video"*, no retry), or TikTok served a bot-check
+page because this datacenter IP got **rate-limited under load** (*"TikTok memblokir
+permintaan"*, retried).
+
+Mitigations in place (all env-tunable, see the systemd unit):
+- **Retry + exponential backoff** on bot-check responses — `TIKTOK_SCRAPE_RETRIES` (default 3),
+  in `lib/tiktok.js`.
+- **Server-side pacing** of the `/api/video-stats` path — `TIKTOK_SCRAPE_MIN_DELAY_MS` /
+  `TIKTOK_SCRAPE_MAX_DELAY_MS` (default 2000–4000) before each scrape, on top of the
+  per-resource queue that already serializes them. Protects the `snapshot:tiktok` cron too.
+- **Spaced Refresh-All loop** in `public/assets/js/tiktok-links.js` (client adds ~1s between
+  links; the server delay above is the real throttle). A full ~100-link run takes ~15–20 min.
+- **Proxy hook** — set `PROXY_URL` (+ `PROXY_USERNAME`/`PROXY_PASSWORD`) and the browser routes
+  through it. A residential/mobile proxy is the actual cure for the IP blocking; not yet
+  configured.
 
 ## Environment (`.env`)
 

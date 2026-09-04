@@ -15,6 +15,19 @@ const PORT = process.env.PORT || 3000;
 // headless (no visible window) by default; set HEADLESS=false to see it.
 const HEADLESS = process.env.HEADLESS !== "false";
 
+// Optional upstream proxy for the browser. Set PROXY_URL to a residential /
+// mobile endpoint (e.g. "http://host:port" or "socks5://host:port") to stop
+// TikTok bot-checking this datacenter IP; PROXY_USERNAME / PROXY_PASSWORD if
+// it needs auth. Unset = direct connection.
+const PROXY_URL = process.env.PROXY_URL || "";
+
+// Pacing for the TikTok video-stats path. Requests are already serialized by
+// the per-resource queue; this delay before each one keeps a bulk run (cron
+// snapshot:tiktok, or the "Refresh All" button walking ~100 links) from
+// tripping TikTok's rate limit. Tune via env.
+const VIDEO_MIN_DELAY_MS = Number(process.env.TIKTOK_SCRAPE_MIN_DELAY_MS) || 2000;
+const VIDEO_MAX_DELAY_MS = Number(process.env.TIKTOK_SCRAPE_MAX_DELAY_MS) || 4000;
+
 const READERS = {
   tiktok: readTikTokFollowerCount,
   instagram: readInstagramFollowerCount,
@@ -42,10 +55,17 @@ function runQueued(queueRef, task) {
 }
 
 async function launchBrowser() {
-  browser = await chromium.launch({
+  const launchOptions = {
     headless: HEADLESS,
     args: ["--disable-blink-features=AutomationControlled"],
-  });
+  };
+  if (PROXY_URL) {
+    launchOptions.proxy = { server: PROXY_URL };
+    if (process.env.PROXY_USERNAME) launchOptions.proxy.username = process.env.PROXY_USERNAME;
+    if (process.env.PROXY_PASSWORD) launchOptions.proxy.password = process.env.PROXY_PASSWORD;
+    console.log(`Browser proxy: ${PROXY_URL}`);
+  }
+  browser = await chromium.launch(launchOptions);
 
   // If the window is closed (or the browser crashes), forget everything so
   // the next request relaunches a fresh browser + pages automatically.
@@ -108,17 +128,20 @@ async function scrape(platform, username) {
 }
 
 async function scrapeVideoStats(url) {
-  await randomDelay(800, 1800);
+  await randomDelay(VIDEO_MIN_DELAY_MS, VIDEO_MAX_DELAY_MS);
+  await ensureBrowser();
+  // A fresh context per lookup. Reusing one long-lived page for video-stats
+  // makes TikTok progressively serve a degraded "trouble playing this video"
+  // shell after a few dozen navigations (the payload comes back empty even
+  // though the video is fine). A clean context sidesteps that and costs
+  // little next to the pacing delay above. Requests are still serialized by
+  // the per-resource queue, so only one of these is open at a time.
+  const context = await browser.newContext({ viewport: null, locale: "en-US" });
   try {
-    const page = await getPage("tiktok-video");
+    const page = await context.newPage();
     return await readTikTokVideoStats(page, url);
-  } catch (err) {
-    if (isRecoverablePageError(err)) {
-      pages["tiktok-video"] = undefined;
-      const page = await getPage("tiktok-video");
-      return await readTikTokVideoStats(page, url);
-    }
-    throw err;
+  } finally {
+    await context.close().catch(() => {});
   }
 }
 
