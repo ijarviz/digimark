@@ -48,8 +48,24 @@
 
             refreshOne(id).then(function (ok) {
                 if (ok) { succeeded++; } else { failed++; }
-                status.textContent = (index) + '/' + ids.length + ' selesai...';
-                next();
+
+                if (index >= ids.length) {
+                    finish();
+                    return;
+                }
+
+                // Jeda antar link supaya scraper tidak dianggap bot (request
+                // beruntun tanpa jeda lebih gampang di-block TikTok) — untuk
+                // ~100 link ini nambah total waktu ~4-5 menit, tapi hampir
+                // semua link jadi berhasil dibanding tanpa jeda sama sekali.
+                status.textContent = index + '/' + ids.length + ' selesai, jeda sebentar...';
+                randomDelay(2000, 3000).then(next);
+            });
+        }
+
+        function randomDelay(minMs, maxMs) {
+            return new Promise(function (resolve) {
+                setTimeout(resolve, minMs + Math.random() * (maxMs - minMs));
             });
         }
 

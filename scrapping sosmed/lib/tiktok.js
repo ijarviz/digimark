@@ -14,14 +14,14 @@ export async function readTikTokFollowerCount(page, username) {
   return { username, raw, count: parseCount(raw) };
 }
 
-// TikTok embeds the full video payload (stats included) as JSON in a
-// <script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"> tag on the video page.
-// Reading that is far more reliable than scraping the on-screen action-bar
-// labels, which are formatted ("12.3K") and don't always include view count.
-export async function readTikTokVideoStats(page, videoUrl) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function readUniversalDataItem(page, videoUrl) {
   await page.goto(videoUrl, { waitUntil: "domcontentloaded" });
 
-  const item = await page.evaluate(() => {
+  return page.evaluate(() => {
     const el = document.querySelector("#__UNIVERSAL_DATA_FOR_REHYDRATION__");
     if (!el) return null;
     try {
@@ -32,6 +32,29 @@ export async function readTikTokVideoStats(page, videoUrl) {
       return null;
     }
   });
+}
+
+// TikTok embeds the full video payload (stats included) as JSON in a
+// <script id="__UNIVERSAL_DATA_FOR_REHYDRATION__"> tag on the video page.
+// Reading that is far more reliable than scraping the on-screen action-bar
+// labels, which are formatted ("12.3K") and don't always include view count.
+//
+// That tag sometimes comes back empty on the first load (page navigated
+// but TikTok's own hydration hadn't finished writing it yet — a transient
+// timing issue, not a real "video not found") — retried a few times with
+// exponential backoff (1s, 2s, 4s) before giving up.
+export async function readTikTokVideoStats(page, videoUrl, { maxAttempts = 4, baseDelayMs = 1000 } = {}) {
+  let item = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    item = await readUniversalDataItem(page, videoUrl);
+
+    if (item && item.stats) break;
+
+    if (attempt < maxAttempts) {
+      await sleep(baseDelayMs * 2 ** (attempt - 1));
+    }
+  }
 
   if (!item || !item.stats) {
     throw new Error("Tidak menemukan data video. Link mungkin salah, video privat, atau sudah dihapus.");
