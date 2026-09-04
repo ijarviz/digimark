@@ -70,8 +70,14 @@ class Security extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * Regenerate CSRF Token on every submission.
+     *
+     * Kept OFF: the TikTok Links "Refresh All" fires a chain of per-link
+     * refresh-one POSTs. With regeneration on, the token rotates on every
+     * response and any hiccup in the JS token hand-off (e.g. a failed
+     * request whose error path can't read the rotated hash) desyncs the
+     * rest of the batch — every following link then 403s on CSRF.
      */
-    public bool $regenerate = true;
+    public bool $regenerate = false;
 
     /**
      * --------------------------------------------------------------------------

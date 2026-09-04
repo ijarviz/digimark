@@ -108,6 +108,15 @@ rendering public profile pages headless (no login). The CI4 app reaches it at
 `TIKTOK_SCRAPER_BASE_URL`. It must be running for `data_source=scrape` links to sync.
 Playwright is **pinned to 1.49.1** here because the server runs Node 18 (1.50+ requires Node 20).
 
+It reads TikTok's `#__UNIVERSAL_DATA_FOR_REHYDRATION__` JSON blob from the video page. When
+that blob is missing it throws *"Tidak menemukan data video"* — which means any of: a genuinely
+bad/truncated/duplicate URL, a deleted/private video, **or** (most common in bulk) TikTok
+served a bot-check page instead of the video. This server is a datacenter IP with no proxy,
+so **bursts get rate-limited**: `snapshot:tiktok` cron and the "Refresh All" button both walk
+~100 links and a chunk fail once TikTok trips. Paced one-at-a-time with a few seconds gap the
+same links succeed. Durable fixes (not yet done): a residential/mobile proxy, spacing the
+Refresh-All JS loop, and a retry-with-backoff in the scraper.
+
 ## Environment (`.env`)
 
 Beyond the standard CI4 keys (`CI_ENVIRONMENT`, `app.baseURL`, `database.default.*`,
