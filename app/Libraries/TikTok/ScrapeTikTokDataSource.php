@@ -21,9 +21,16 @@ class ScrapeTikTokDataSource implements TikTokDataSourceInterface
 
         try {
             $response = Services::curlrequest()->get($baseUrl . '/api/video-stats', [
-                'query'       => ['url' => $url],
-                'http_errors' => false,
-                'timeout'     => 30,
+                'query'          => ['url' => $url],
+                'http_errors'    => false,
+                // The scraper paces each lookup (2–4s), spins up a fresh browser
+                // context, and retries with backoff on a bot-check — a single
+                // call can legitimately take a minute. It also serializes calls
+                // in an internal queue, so a client that gives up early leaves a
+                // job still running and backs the queue up for every request
+                // after it. Wait it out instead.
+                'connect_timeout' => 10,
+                'timeout'         => 120,
             ]);
         } catch (\Throwable $e) {
             throw new TikTokDataSourceException(

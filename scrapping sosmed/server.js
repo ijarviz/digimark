@@ -25,8 +25,8 @@ const PROXY_URL = process.env.PROXY_URL || "";
 // the per-resource queue; this delay before each one keeps a bulk run (cron
 // snapshot:tiktok, or the "Refresh All" button walking ~100 links) from
 // tripping TikTok's rate limit. Tune via env.
-const VIDEO_MIN_DELAY_MS = Number(process.env.TIKTOK_SCRAPE_MIN_DELAY_MS) || 2000;
-const VIDEO_MAX_DELAY_MS = Number(process.env.TIKTOK_SCRAPE_MAX_DELAY_MS) || 4000;
+const VIDEO_MIN_DELAY_MS = Number(process.env.TIKTOK_SCRAPE_MIN_DELAY_MS) || 1500;
+const VIDEO_MAX_DELAY_MS = Number(process.env.TIKTOK_SCRAPE_MAX_DELAY_MS) || 3000;
 
 const READERS = {
   tiktok: readTikTokFollowerCount,

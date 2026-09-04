@@ -115,10 +115,12 @@ page because this datacenter IP got **rate-limited under load** (*"TikTok memblo
 permintaan"*, retried).
 
 Mitigations in place (all env-tunable, see the systemd unit):
-- **Retry + exponential backoff** on bot-check responses — `TIKTOK_SCRAPE_RETRIES` (default 3),
-  in `lib/tiktok.js`.
+- **Retry + linear backoff** on bot-check responses — `TIKTOK_SCRAPE_RETRIES` (default 2),
+  in `lib/tiktok.js`. Backoff and page timeouts are kept short here because the PHP caller
+  (`ScrapeTikTokDataSource`) waits ~120s for the whole lookup and the scraper serializes
+  calls — a slow abandoned call backs the queue up for every request behind it.
 - **Server-side pacing** of the `/api/video-stats` path — `TIKTOK_SCRAPE_MIN_DELAY_MS` /
-  `TIKTOK_SCRAPE_MAX_DELAY_MS` (default 2000–4000) before each scrape, on top of the
+  `TIKTOK_SCRAPE_MAX_DELAY_MS` (default 1500–3000) before each scrape, on top of the
   per-resource queue that already serializes them. Protects the `snapshot:tiktok` cron too.
 - **Spaced Refresh-All loop** in `public/assets/js/tiktok-links.js` (client adds ~1s between
   links; the server delay above is the real throttle). A full ~100-link run takes ~15–20 min.

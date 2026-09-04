@@ -16,8 +16,9 @@ export async function readTikTokFollowerCount(page, username) {
 
 // Total attempts per lookup (1 = no retry). TikTok serves a bot-check page
 // instead of the video when it rate-limits this IP under load; that clears on
-// its own, so a retry with backoff recovers most of them.
-const VIDEO_RETRIES = Math.max(1, Number(process.env.TIKTOK_SCRAPE_RETRIES) || 3);
+// its own, so one retry with backoff recovers most of them. Kept at 2 so a
+// dead link fails fast rather than burning three slow render cycles.
+const VIDEO_RETRIES = Math.max(1, Number(process.env.TIKTOK_SCRAPE_RETRIES) || 2);
 
 const GENERIC_MISSING =
   "Tidak menemukan data video. Link mungkin salah, video privat, atau sudah dihapus.";
@@ -61,15 +62,17 @@ export async function readTikTokVideoStats(page, videoUrl) {
 
   for (let attempt = 1; attempt <= VIDEO_RETRIES; attempt++) {
     if (attempt > 1) {
-      // Exponential backoff with jitter: ~4s, ~8s, ~16s ...
-      const backoff = Math.round(2 ** attempt * 1000 * (0.75 + Math.random() * 0.5));
+      // Linear backoff with jitter (~1.5s, ~3s ...). Kept short on purpose: the
+      // PHP client that calls this waits ~120s total for the whole lookup, and
+      // the server already paces requests before we get here.
+      const backoff = Math.round(1500 * attempt * (0.75 + Math.random() * 0.5));
       await page.waitForTimeout(backoff);
     }
 
-    await page.goto(videoUrl, { waitUntil: "domcontentloaded", timeout: 45000 });
+    await page.goto(videoUrl, { waitUntil: "domcontentloaded", timeout: 20000 });
     // The blob is written during hydration, a beat after DOMContentLoaded.
     await page
-      .waitForSelector("#__UNIVERSAL_DATA_FOR_REHYDRATION__", { timeout: 8000 })
+      .waitForSelector("#__UNIVERSAL_DATA_FOR_REHYDRATION__", { timeout: 6000 })
       .catch(() => {});
 
     const { item, blocked } = await extractVideoPayload(page);
