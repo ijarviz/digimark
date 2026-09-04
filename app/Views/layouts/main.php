@@ -64,10 +64,6 @@ $assetUrl = static function (string $src): string {
                 <span class="material-symbols-outlined">link</span>
                 <span class="text-body-md font-body-md">TikTok Links</span>
             </a>
-            <a href="<?= base_url('discovery/influencers') ?>" class="<?= $navLinkClass('discovery-influencers') ?>">
-                <span class="material-symbols-outlined">person_search</span>
-                <span class="text-body-md font-body-md">Influencer Discovery</span>
-            </a>
             <?php if (in_array($roleName, ['admin', 'content_manager'], true)): ?>
             <a href="<?= base_url('publish') ?>" class="<?= $navLinkClass('ig-publish') ?>">
                 <span class="material-symbols-outlined">send</span>
