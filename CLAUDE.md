@@ -167,6 +167,20 @@ notice. **Ported from automedia** (`app/Controllers/Admin/Improve/`, `app/Servic
 `app/Views/admin/improve_me/`) — Bootstrap→Tailwind, Guzzle→CURLRequest, RBAC permission→plain
 `role_name === 'admin'`.
 
+The GitHub repo backing this is **`ijarviz/digimark`** (moved here from `RaihanFirdhan/DM-DATA-`
+specifically so its owner, the Claude GitHub App installation, and the claude.ai account
+running the cloud routine are all the same identity — see the routine note below for why that
+mattered). `github.token` is a fine-grained PAT on `ijarviz/digimark` with Issues, Contents,
+and Administration R/W.
+
+The cloud routine ("Digimark Improve Me") is wired to auto-fire on new issues via a GitHub
+webhook. **The webhook event name must be `issues.opened` (dotted, action-specific) — bare
+`issues` silently registers but never fires.** The `create_webhook_trigger` API does not
+validate the `events` value at all (confirmed: it accepts nonsense event names with a clean
+200), so a wrong format gives no error — the trigger recheck for this is watching whether a
+`gh issue create` on a fresh test issue produces a *new* routine run session within seconds
+(`RemoteTrigger` `list_runs`/`get_run_log`), not just trusting the create call's response.
+
 ## Environment (`.env`)
 
 Beyond the standard CI4 keys (`CI_ENVIRONMENT`, `app.baseURL`, `database.default.*`,
