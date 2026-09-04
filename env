@@ -67,3 +67,13 @@
 #--------------------------------------------------------------------
 
 # logger.threshold = 4
+
+#--------------------------------------------------------------------
+# IMPROVE ME  (Jarvis Power menu — GitHub bridge)
+#--------------------------------------------------------------------
+# Fine-grained GitHub PAT with "Issues: Read and write" on the project
+# repo. Used only to open the `improve-me` issue that triggers the
+# claude.ai cloud routine, and to poll that issue for the result.
+
+# github.repo  = 'owner/name'
+# github.token =

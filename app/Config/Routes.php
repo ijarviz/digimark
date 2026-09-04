@@ -54,4 +54,10 @@ $routes->group('admin', ['filter' => 'role:admin'], static function ($routes) {
 
     $routes->get('job-logs', 'Admin\JobLogController::index');
     $routes->post('job-logs/toggle-monitoring', 'Admin\JobLogController::toggleMonitoring');
+
+    // Jarvis Power — "Improve Me". Admin-only prompt box that opens a
+    // GitHub issue bridging into a claude.ai cloud routine (works on a
+    // branch, opens a PR). Role is re-checked in the controller too.
+    $routes->get('improve-me', 'Admin\Improve\ImproveMeController::index');
+    $routes->post('improve-me/submit', 'Admin\Improve\ImproveMeController::submit');
 });

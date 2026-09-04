@@ -128,6 +128,20 @@ Mitigations in place (all env-tunable, see the systemd unit):
   through it. A residential/mobile proxy is the actual cure for the IP blocking; not yet
   configured.
 
+### Improve Me (Jarvis Power menu)
+Admin-only page at **`/admin/improve-me`** (`Admin\Improve\ImproveMeController`, route filter
+`role:admin` + the role re-checked in the controller). An admin types a prompt; the app opens
+a GitHub issue labeled `improve-me` on the repo (`Config\Github` → `github.repo`/`github.token`
+in `.env`), which triggers a claude.ai cloud routine to make the change **on a branch and open
+a PR** — never a direct push to `main`. `ImproveMeService` (in `app/Libraries/Improve/`, uses
+CI4 `CURLRequest`, not Guzzle) polls each non-terminal request's issue on every page load:
+labels `improve-me:in-progress`/`improve-me:done` drive the shown status, and the routine's
+final comment is cached into `ai_improve_requests.result_comment` / `result_pr_url` once done.
+With `github.token` unset the page still renders; submitting just flashes a "not configured"
+notice. **Ported from automedia** (`app/Controllers/Admin/Improve/`, `app/Services/Improve/`,
+`app/Views/admin/improve_me/`) — Bootstrap→Tailwind, Guzzle→CURLRequest, RBAC permission→plain
+`role_name === 'admin'`.
+
 ## Environment (`.env`)
 
 Beyond the standard CI4 keys (`CI_ENVIRONMENT`, `app.baseURL`, `database.default.*`,
@@ -137,6 +151,7 @@ Beyond the standard CI4 keys (`CI_ENVIRONMENT`, `app.baseURL`, `database.default
 |---|---|
 | `IG_APP_ID`, `IG_APP_SECRET` | Meta app — bootstrap fallback for `meta_app_config` |
 | `IG_REDIRECT_URI` | OAuth callback, must match `/admin/ig-account/callback` |
+| `github.repo`, `github.token` | "Improve Me" — repo (`owner/name`) + fine-grained PAT (Issues: R/W) for the GitHub-issue bridge |
 | `TIKTOK_SCRAPER_BASE_URL` | URL of the `scrapping sosmed` service |
 | `SEED_ADMIN_USERNAME` / `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | consumed by `AdminUserSeeder`; if password unset it auto-generates one and prints it once |
 
