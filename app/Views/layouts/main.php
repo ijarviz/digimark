@@ -14,6 +14,22 @@ $navLinkClass = static function (string $key) use ($activeNav) {
         ? 'flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container border-l-4 border-primary rounded-r-full'
         : 'flex items-center gap-3 px-4 py-3 text-surface-variant hover:bg-surface-container-high hover:text-white transition-colors rounded-r-full';
 };
+
+// Append ?v=<file mtime> to local asset URLs. Cloudflare edge-caches
+// /assets/* for hours (cache-control: max-age=14400 from the origin), so
+// without this a deployed JS/CSS change keeps serving stale until the TTL
+// lapses or someone purges the CDN. The versioned URL is a fresh cache key,
+// so it's fetched from origin on the first hit after a deploy.
+$assetUrl = static function (string $src): string {
+    $path = (string) parse_url($src, PHP_URL_PATH);
+    $file = FCPATH . ltrim($path, '/');
+
+    if (! is_file($file)) {
+        return $src;
+    }
+
+    return $src . (str_contains($src, '?') ? '&' : '?') . 'v=' . filemtime($file);
+};
 ?>
 <!doctype html>
 <html lang="id">
@@ -23,7 +39,7 @@ $navLinkClass = static function (string $key) use ($activeNav) {
     <title><?= esc($title ?? 'Dashboard') ?> - Social Orchestrator</title>
     <?= view('layouts/partials/tailwind_head') ?>
     <?php if (! empty($extraHeadScripts)): foreach ($extraHeadScripts as $src): ?>
-    <script src="<?= $src ?>"></script>
+    <script src="<?= esc($assetUrl($src), 'attr') ?>"></script>
     <?php endforeach; endif; ?>
 </head>
 <body class="bg-surface text-on-surface font-body-md text-body-md min-h-screen">
@@ -152,7 +168,7 @@ $navLinkClass = static function (string $key) use ($activeNav) {
     </div>
 </div>
 <?php if (! empty($extraBodyScripts)): foreach ($extraBodyScripts as $src): ?>
-<script src="<?= $src ?>"></script>
+<script src="<?= esc($assetUrl($src), 'attr') ?>"></script>
 <?php endforeach; endif; ?>
 </body>
 </html>
