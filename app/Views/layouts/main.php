@@ -89,6 +89,10 @@ $assetUrl = static function (string $src): string {
                 <span class="material-symbols-outlined">terminal</span>
                 <span class="text-body-md font-body-md">Job Monitoring</span>
             </a>
+            <a href="<?= base_url('discovery/influencers') ?>" class="<?= $navLinkClass('discovery-influencers') ?>">
+                <span class="material-symbols-outlined">person_search</span>
+                <span class="text-body-md font-body-md">Influencer Discovery</span>
+            </a>
 
             <div class="px-4 pt-4 pb-1 text-label-caps font-label-caps text-surface-variant/70">Jarvis Power</div>
             <a href="<?= base_url('admin/improve-me') ?>" class="<?= $navLinkClass('admin-improve-me') ?>">

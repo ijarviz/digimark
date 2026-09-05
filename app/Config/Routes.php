@@ -19,8 +19,6 @@ $routes->group('', ['filter' => 'role:admin,content_manager,viewer'], static fun
     $routes->get('dashboard/tiktok', 'TikTok\DashboardController::index');
 
     $routes->get('tiktok/links', 'TikTok\LinkController::index');
-
-    $routes->get('discovery/influencers', 'Discovery\InfluencerDiscoveryController::index');
 });
 
 // TikTok link management + Instagram publish — content_manager + admin only.
@@ -30,12 +28,16 @@ $routes->group('', ['filter' => 'role:admin,content_manager'], static function (
     $routes->post('tiktok/links/(:num)/delete', 'TikTok\LinkController::delete/$1');
     $routes->post('tiktok/links/(:num)/refresh-one', 'TikTok\LinkController::refreshOne/$1');
 
-    $routes->post('discovery/influencers/save', 'Discovery\InfluencerDiscoveryController::save');
-
     $routes->get('publish', 'Instagram\PublishController::index');
     $routes->get('publish/new', 'Instagram\PublishController::new');
     $routes->post('publish', 'Instagram\PublishController::create');
     $routes->post('publish/(:num)/retry', 'Instagram\PublishController::retry/$1');
+});
+
+// Influencer Discovery — admin-only (restricted from its earlier all-roles view).
+$routes->group('', ['filter' => 'role:admin'], static function ($routes) {
+    $routes->get('discovery/influencers', 'Discovery\InfluencerDiscoveryController::index');
+    $routes->post('discovery/influencers/save', 'Discovery\InfluencerDiscoveryController::save');
 });
 
 // Admin-only area.

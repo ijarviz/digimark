@@ -11,14 +11,24 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 
 /**
  * Influencer Discovery — search Instagram/TikTok by keyword via Apify and
- * optionally save a found TikTok profile into tiktok_link. Viewable by all
- * three roles (like the dashboards); saving is admin/content_manager only,
- * matching TikTok\LinkController's split.
+ * optionally save a found TikTok profile into tiktok_link. Admin-only:
+ * besides the route filter (`role:admin`), the role is re-checked here per
+ * the CLAUDE.md rule that anything sensitive must enforce the role in the
+ * controller too.
  */
 class InfluencerDiscoveryController extends BaseController
 {
+    private function guard(): void
+    {
+        if (session()->get('role_name') !== 'admin') {
+            throw PageNotFoundException::forPageNotFound();
+        }
+    }
+
     public function index()
     {
+        $this->guard();
+
         $keyword  = trim((string) $this->request->getGet('q'));
         $platform = (string) $this->request->getGet('platform') ?: 'all';
         $errors   = [];
@@ -70,7 +80,7 @@ class InfluencerDiscoveryController extends BaseController
                 'platform' => $platform,
                 'results'  => $results,
                 'errors'   => $errors,
-                'canSave'  => $this->canManageLinks(),
+                'canSave'  => true,
             ],
             'extraBodyScripts' => [
                 base_url('assets/js/influencer-discovery.js'),
@@ -89,7 +99,7 @@ class InfluencerDiscoveryController extends BaseController
      */
     public function save()
     {
-        $this->requireCanManageLinks();
+        $this->guard();
 
         $platform   = (string) $this->request->getPost('platform');
         $profileUrl = (string) $this->request->getPost('profile_url');
@@ -153,17 +163,5 @@ class InfluencerDiscoveryController extends BaseController
             'message'    => 'Tersimpan ke TikTok Links (nonaktif — tambahkan link video lalu aktifkan untuk mulai tracking).',
             'csrf_token' => csrf_hash(),
         ]);
-    }
-
-    private function canManageLinks(): bool
-    {
-        return in_array(session()->get('role_name'), ['admin', 'content_manager'], true);
-    }
-
-    private function requireCanManageLinks(): void
-    {
-        if (! $this->canManageLinks()) {
-            throw new PageNotFoundException();
-        }
     }
 }

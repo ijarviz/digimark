@@ -129,12 +129,11 @@ Mitigations in place (all env-tunable, see the systemd unit):
   configured.
 
 ### Influencer Discovery
-Page at **`/discovery/influencers`** (`Discovery\InfluencerDiscoveryController`) — searches
-Instagram and TikTok **by keyword/niche** (not a known handle) via Apify actors and lists
-matching accounts with follower count/bio. Viewable by all three roles like the dashboards;
-saving a result is `admin,content_manager` only, same split as `tiktok/links`. Distinct from
-`ScrapeTikTokDataSource`, which only reads metrics for a URL you already have — this is for
-finding accounts you don't know about yet.
+Admin-only page at **`/discovery/influencers`** (`Discovery\InfluencerDiscoveryController`,
+route filter `role:admin` + the role re-checked in the controller) — searches Instagram and
+TikTok **by keyword/niche** (not a known handle) via Apify actors and lists matching accounts
+with follower count/bio. Distinct from `ScrapeTikTokDataSource`, which only reads metrics for
+a URL you already have — this is for finding accounts you don't know about yet.
 
 `App\Libraries\Discovery\ApifyDiscoveryService` calls Apify's `run-sync-get-dataset-items`
 (blocks until the run finishes) via CI4 `CURLRequest`, using `APIFY_TOKEN` from `.env`:
