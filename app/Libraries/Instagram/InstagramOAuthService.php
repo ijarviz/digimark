@@ -34,6 +34,8 @@ class InstagramOAuthService
 
     public function getAuthorizeUrl(): string
     {
+        $this->assertConfigured();
+
         $params = [
             'client_id'     => $this->appId(),
             'redirect_uri'  => $this->redirectUri(),
@@ -121,6 +123,28 @@ class InstagramOAuthService
             'client_secret'     => $this->appSecret(),
             'fb_exchange_token' => $shortLivedToken,
         ]);
+    }
+
+    /**
+     * The App ID/save-time fix only rejects a bad paste going forward — a row
+     * saved before that validation existed (or never saved at all) still
+     * reaches here untouched, and would otherwise get redirected straight
+     * into Facebook's own "Invalid App ID" page. Catch it here instead, with
+     * a message that points back at the admin-editable settings.
+     */
+    private function assertConfigured(): void
+    {
+        $appId = $this->appId();
+
+        if ($appId === '' || ! preg_match('/^[0-9]+$/', $appId)) {
+            throw new RuntimeException('Meta App ID belum diatur atau tidak valid (harus berupa angka). Buka Admin > API Settings dan simpan ulang App ID.');
+        }
+
+        $redirectUri = $this->redirectUri();
+
+        if ($redirectUri === '' || filter_var($redirectUri, FILTER_VALIDATE_URL) === false) {
+            throw new RuntimeException('Redirect URI Meta belum diatur atau tidak valid. Periksa di Admin > API Settings.');
+        }
     }
 
     private function appId(): string
