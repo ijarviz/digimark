@@ -127,21 +127,21 @@ class InstagramOAuthService
     {
         $config = (new MetaAppConfigModel())->getConfig();
 
-        return ! empty($config['app_id']) ? $config['app_id'] : (string) env('IG_APP_ID');
+        return trim(! empty($config['app_id']) ? $config['app_id'] : (string) env('IG_APP_ID'));
     }
 
     private function appSecret(): string
     {
         $secret = (new MetaAppConfigModel())->getDecryptedAppSecret();
 
-        return $secret ?? (string) env('IG_APP_SECRET');
+        return trim($secret ?? (string) env('IG_APP_SECRET'));
     }
 
     private function redirectUri(): string
     {
         $config = (new MetaAppConfigModel())->getConfig();
 
-        return ! empty($config['redirect_uri']) ? $config['redirect_uri'] : (string) env('IG_REDIRECT_URI');
+        return trim(! empty($config['redirect_uri']) ? $config['redirect_uri'] : (string) env('IG_REDIRECT_URI'));
     }
 
     private function getFirstPageId(string $accessToken): string
