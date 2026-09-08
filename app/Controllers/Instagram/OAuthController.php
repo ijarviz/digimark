@@ -33,7 +33,15 @@ class OAuthController extends BaseController
     {
         $this->requireAdmin();
 
-        return redirect()->to((new InstagramOAuthService())->getAuthorizeUrl());
+        try {
+            $authorizeUrl = (new InstagramOAuthService())->getAuthorizeUrl();
+        } catch (\Throwable $e) {
+            session()->setFlashdata('error', $e->getMessage());
+
+            return redirect()->to('/admin/api-settings');
+        }
+
+        return redirect()->to($authorizeUrl);
     }
 
     public function callback()
