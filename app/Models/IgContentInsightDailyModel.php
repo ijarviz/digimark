@@ -56,6 +56,29 @@ class IgContentInsightDailyModel extends Model
     }
 
     /**
+     * Per-day engagement (likes+comments+saves+shares) per content item in
+     * range, ordered by date — feeds the inline sparklines on the Content
+     * Performance page. Keyed into buckets by the caller.
+     *
+     * @return list<array{ig_content_id: int, snapshot_date: string, engagement: int, reach: int}>
+     */
+    public function getDailySeriesInRange(int $igAccountId, string $from, string $to): array
+    {
+        return $this->db->table('ig_content_insight_daily i')
+            ->select('i.ig_content_id,
+                      i.snapshot_date,
+                      (i.likes + i.comments + i.saves + i.shares) AS engagement,
+                      i.reach')
+            ->join('ig_content c', 'c.id = i.ig_content_id')
+            ->where('c.ig_account_id', $igAccountId)
+            ->where('i.snapshot_date >=', $from)
+            ->where('i.snapshot_date <=', $to)
+            ->orderBy('i.ig_content_id, i.snapshot_date', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
      * Per-content totals within a date range, for the content table.
      */
     public function getContentTotalsInRange(int $igAccountId, string $from, string $to): array

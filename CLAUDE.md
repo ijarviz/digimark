@@ -100,6 +100,30 @@ would leave holes in dashboards, so this logging is mandatory, not optional. Com
 `snapshot:tiktok` (per-link try/catch — one bad link never stops the batch),
 `process:publish-queue`. `dev:seed-fake-data` is dev-only.
 
+### Instagram publishing (`/publish`)
+`Instagram\PublishController` + `PublishEngineService` + `process:publish-queue` (cron `*/5`).
+Compose (image/carousel/reels/story) → `publish_queue` row (`pending`) → worker does
+container-create → poll → publish, resuming in-flight containers across cron runs, timing out
+stuck containers (30 min), capping at ~25 publishes/24h (defers the rest a day), retry capped
+at `PublishQueueModel::MAX_RETRIES`. On publish, non-story items are linked into `ig_content`
+(`ProcessPublishQueue::linkToContentTracking`) so `snapshot:ig-content` then feeds
+`ig_content_insight_daily`.
+
+Three views hang off `/publish`, all `role:admin,content_manager`:
+- **`/publish`** — history table; for `published` rows it left-joins the newest
+  `ig_content_insight_daily` (via `ig_media_id_result` → `ig_content` → a MAX(snapshot_date)
+  subquery) to show likes/comments/reach/saves inline. `pending` rows get Edit/Cancel;
+  `failed` get Retry.
+- **`/publish/calendar`** — month grid (`?month=YYYY-MM`), Monday-first, chips coloured by
+  status; pending chips link to edit.
+- **`/publish/performance`** (`Instagram\ContentPerformanceController`) — per-post insight
+  table from `getContentTotalsInRange` + inline engagement sparklines from
+  `getDailySeriesInRange`, date-range + server-side sort. Same "snapshots, not live API" rule
+  as the dashboards.
+
+Edit/cancel only work while `status = 'pending'` (`PublishQueueModel::canEdit`); `cancelled`
+is a terminal status kept for the audit trail, not a row delete.
+
 ### TikTok scraper (separate service)
 `scrapping sosmed/` is a **standalone Node (ESM) Express + Playwright** app — its own
 `package.json`, not part of the PHP build. It exposes `GET /api/count` (follower/subscriber

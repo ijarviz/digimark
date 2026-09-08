@@ -30,7 +30,12 @@ $routes->group('', ['filter' => 'role:admin,content_manager'], static function (
 
     $routes->get('publish', 'Instagram\PublishController::index');
     $routes->get('publish/new', 'Instagram\PublishController::new');
+    $routes->get('publish/calendar', 'Instagram\PublishController::calendar');
+    $routes->get('publish/performance', 'Instagram\ContentPerformanceController::index');
     $routes->post('publish', 'Instagram\PublishController::create');
+    $routes->get('publish/(:num)/edit', 'Instagram\PublishController::edit/$1');
+    $routes->post('publish/(:num)/update', 'Instagram\PublishController::update/$1');
+    $routes->post('publish/(:num)/cancel', 'Instagram\PublishController::cancel/$1');
     $routes->post('publish/(:num)/retry', 'Instagram\PublishController::retry/$1');
 });
 

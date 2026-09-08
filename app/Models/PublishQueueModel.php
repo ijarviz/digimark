@@ -126,4 +126,79 @@ class PublishQueueModel extends Model
     {
         return $row['status'] === 'failed' && ($row['retry_count'] ?? 0) < self::MAX_RETRIES;
     }
+
+    /** Only a still-queued item can be edited or cancelled. */
+    public function canEdit(array $row): bool
+    {
+        return $row['status'] === 'pending';
+    }
+
+    /**
+     * History rows joined to the latest daily insight snapshot for each
+     * published item (via ig_media_id_result -> ig_content -> the newest
+     * ig_content_insight_daily). Non-published rows and posts not yet
+     * snapshotted come back with null metric fields.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function historyWithInsights(int $limit = 100): array
+    {
+        return $this->db->table('publish_queue q')
+            ->select('q.*,
+                      i.reach AS m_reach, i.impressions AS m_impressions,
+                      i.likes AS m_likes, i.comments AS m_comments,
+                      i.saves AS m_saves, i.shares AS m_shares,
+                      i.snapshot_date AS m_snapshot_date,
+                      c.permalink AS m_permalink')
+            ->join('ig_content c', 'c.ig_media_id = q.ig_media_id_result', 'left')
+            ->join(
+                '(SELECT d1.* FROM ig_content_insight_daily d1
+                  JOIN (SELECT ig_content_id, MAX(snapshot_date) AS mx
+                        FROM ig_content_insight_daily GROUP BY ig_content_id) d2
+                    ON d2.ig_content_id = d1.ig_content_id AND d2.mx = d1.snapshot_date) i',
+                'i.ig_content_id = c.id',
+                'left'
+            )
+            ->orderBy('q.created_at', 'DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+    }
+
+    /**
+     * Every queue item whose scheduled_at OR published_at falls inside the
+     * given month (Y-m-01 .. last day), for the calendar grid.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function itemsForMonth(string $monthStart, string $monthEnd): array
+    {
+        return $this->groupStart()
+            ->where('scheduled_at >=', $monthStart)->where('scheduled_at <=', $monthEnd . ' 23:59:59')
+            ->groupEnd()
+            ->orGroupStart()
+            ->where('published_at >=', $monthStart)->where('published_at <=', $monthEnd . ' 23:59:59')
+            ->groupEnd()
+            ->orderBy('scheduled_at', 'ASC')
+            ->findAll();
+    }
+
+    public function cancel(int $id): void
+    {
+        $this->update($id, ['status' => 'cancelled', 'updated_at' => date('Y-m-d H:i:s')]);
+    }
+
+    /**
+     * @param array{caption: ?string, media_urls: array<int, string>, media_type: string, scheduled_at: string} $data
+     */
+    public function updatePending(int $id, array $data): void
+    {
+        $this->update($id, [
+            'caption'      => $data['media_type'] === 'story' ? null : $data['caption'],
+            'media_urls'   => $data['media_urls'],
+            'media_type'   => $data['media_type'],
+            'scheduled_at' => $data['scheduled_at'],
+            'updated_at'   => date('Y-m-d H:i:s'),
+        ]);
+    }
 }

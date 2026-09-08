@@ -69,6 +69,10 @@ $assetUrl = static function (string $src): string {
                 <span class="material-symbols-outlined">send</span>
                 <span class="text-body-md font-body-md">Publish Instagram</span>
             </a>
+            <a href="<?= base_url('publish/performance') ?>" class="<?= $navLinkClass('ig-content-performance') ?>">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <span class="text-body-md font-body-md">Content Performance</span>
+            </a>
             <?php endif; ?>
 
             <?php if ($roleName === 'admin'): ?>
