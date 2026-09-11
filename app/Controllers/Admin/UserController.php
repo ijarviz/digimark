@@ -11,17 +11,46 @@ class UserController extends BaseController
 {
     public function index()
     {
-        $users = (new UserModel())
+        $search = trim((string) $this->request->getGet('q'));
+        $roleId = (string) $this->request->getGet('role_id');
+        $status = (string) $this->request->getGet('status');
+
+        $builder = (new UserModel())
             ->select('users.*, roles.name as role_name')
             ->join('roles', 'roles.id = users.role_id')
-            ->orderBy('users.created_at', 'DESC')
-            ->findAll();
+            ->orderBy('users.created_at', 'DESC');
+
+        if ($search !== '') {
+            $builder->groupStart()
+                ->like('users.name', $search)
+                ->orLike('users.username', $search)
+                ->orLike('users.email', $search)
+                ->groupEnd();
+        }
+
+        if ($roleId !== '' && ctype_digit($roleId)) {
+            $builder->where('users.role_id', (int) $roleId);
+        }
+
+        if ($status === 'active' || $status === 'inactive') {
+            $builder->where('users.is_active', $status === 'active' ? 1 : 0);
+        }
+
+        $users = $builder->findAll();
 
         return view('layouts/main', [
             'title'       => 'Kelola User',
             'activeNav'   => 'admin-users',
             'contentView' => 'admin/users_index',
-            'contentData' => ['users' => $users],
+            'contentData' => [
+                'users'   => $users,
+                'roles'   => (new RoleModel())->findAll(),
+                'filters' => [
+                    'q'       => $search,
+                    'role_id' => $roleId,
+                    'status'  => $status,
+                ],
+            ],
         ]);
     }
 
