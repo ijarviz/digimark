@@ -1,10 +1,57 @@
-<form method="get" action="<?= base_url('dashboard/tiktok') ?>" class="bg-surface-container-lowest border border-outline-variant rounded p-3 flex gap-4 items-end mb-gutter">
+<form method="get" action="<?= base_url('dashboard/tiktok') ?>" class="bg-surface-container-lowest border border-outline-variant rounded p-3 flex flex-wrap gap-4 items-end mb-gutter">
     <div>
-        <label for="date" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Tanggal</label>
+        <label for="filter-url" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">URL</label>
+        <input type="text" id="filter-url" name="url" value="<?= esc($filters['url']) ?>" placeholder="Cari URL..."
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-56">
+    </div>
+    <div>
+        <label for="filter-creator" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Creator</label>
+        <input type="text" id="filter-creator" name="creator" value="<?= esc($filters['creator']) ?>" placeholder="@creator..."
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-40">
+    </div>
+    <div>
+        <label for="filter-source" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Source</label>
+        <select id="filter-source" name="source"
+                class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+            <option value="">Semua Source</option>
+            <option value="oauth" <?= $filters['source'] === 'oauth' ? 'selected' : '' ?>>OAuth</option>
+            <option value="scrape" <?= $filters['source'] === 'scrape' ? 'selected' : '' ?>>Scrape</option>
+        </select>
+    </div>
+    <div>
+        <label for="filter-min-views" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Min. Views</label>
+        <input type="number" min="0" id="filter-min-views" name="min_views" value="<?= esc((string) ($filters['min_views'] ?? '')) ?>"
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-24">
+    </div>
+    <div>
+        <label for="filter-min-likes" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Min. Likes</label>
+        <input type="number" min="0" id="filter-min-likes" name="min_likes" value="<?= esc((string) ($filters['min_likes'] ?? '')) ?>"
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-24">
+    </div>
+    <div>
+        <label for="filter-min-comments" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Min. Comments</label>
+        <input type="number" min="0" id="filter-min-comments" name="min_comments" value="<?= esc((string) ($filters['min_comments'] ?? '')) ?>"
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-24">
+    </div>
+    <div>
+        <label for="filter-min-shares" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Min. Shares</label>
+        <input type="number" min="0" id="filter-min-shares" name="min_shares" value="<?= esc((string) ($filters['min_shares'] ?? '')) ?>"
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-24">
+    </div>
+    <div>
+        <label for="filter-min-saves" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Min. Saves</label>
+        <input type="number" min="0" id="filter-min-saves" name="min_saves" value="<?= esc((string) ($filters['min_saves'] ?? '')) ?>"
+               class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary w-24">
+    </div>
+    <div>
+        <label for="date" class="block text-label-caps font-label-caps text-on-surface-variant mb-1">Tanggal Data</label>
         <input type="date" id="date" name="date" value="<?= esc($date) ?>"
                class="h-[36px] px-3 rounded border border-outline-variant bg-surface text-body-sm font-body-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary">
     </div>
     <button type="submit" class="h-[36px] px-4 rounded bg-primary text-on-primary text-body-sm font-body-sm hover:bg-primary-container hover:text-on-primary-container transition-colors">Terapkan</button>
+    <?php if ($filters['url'] !== '' || $filters['creator'] !== '' || $filters['source'] !== '' || $filters['min_views'] !== null || $filters['min_likes'] !== null || $filters['min_comments'] !== null || $filters['min_shares'] !== null || $filters['min_saves'] !== null): ?>
+    <a href="<?= base_url('dashboard/tiktok') ?>" class="h-[36px] inline-flex items-center text-body-sm font-body-sm text-on-surface-variant hover:text-primary px-2">Reset</a>
+    <?php endif; ?>
 </form>
 
 <div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
