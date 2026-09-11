@@ -5,6 +5,37 @@
     </a>
 </div>
 
+<form method="get" action="<?= base_url('admin/users') ?>" class="bg-surface-container-lowest border border-outline-variant rounded-lg p-3 mb-gutter flex flex-wrap items-end gap-3">
+    <div class="flex flex-col gap-1">
+        <label for="filter-q" class="font-label-caps text-label-caps text-on-surface-variant">Cari user</label>
+        <input type="text" id="filter-q" name="q" value="<?= esc($filters['q']) ?>" placeholder="Nama, username, atau email..." class="bg-surface border border-outline-variant rounded px-3 py-2 text-body-sm font-body-sm text-on-surface w-64">
+    </div>
+    <div class="flex flex-col gap-1">
+        <label for="filter-role" class="font-label-caps text-label-caps text-on-surface-variant">Role</label>
+        <select id="filter-role" name="role_id" class="bg-surface border border-outline-variant rounded px-3 py-2 text-body-sm font-body-sm text-on-surface">
+            <option value="">Semua Role</option>
+            <?php foreach ($roles as $role): ?>
+            <option value="<?= esc((string) $role['id']) ?>" <?= $filters['role_id'] === (string) $role['id'] ? 'selected' : '' ?>><?= esc($role['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="flex flex-col gap-1">
+        <label for="filter-status" class="font-label-caps text-label-caps text-on-surface-variant">Status</label>
+        <select id="filter-status" name="status" class="bg-surface border border-outline-variant rounded px-3 py-2 text-body-sm font-body-sm text-on-surface">
+            <option value="">Semua Status</option>
+            <option value="active" <?= $filters['status'] === 'active' ? 'selected' : '' ?>>Aktif</option>
+            <option value="inactive" <?= $filters['status'] === 'inactive' ? 'selected' : '' ?>>Nonaktif</option>
+        </select>
+    </div>
+    <button type="submit" class="bg-primary text-on-primary font-body-md text-body-md px-4 py-2 rounded shadow hover:bg-primary-container hover:text-on-primary-container transition-all flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">filter_alt</span>
+        Filter
+    </button>
+    <?php if ($filters['q'] !== '' || $filters['role_id'] !== '' || $filters['status'] !== ''): ?>
+    <a href="<?= base_url('admin/users') ?>" class="text-body-sm font-body-sm text-on-surface-variant hover:text-primary px-2 py-2">Reset</a>
+    <?php endif; ?>
+</form>
+
 <div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
@@ -20,6 +51,9 @@
             </tr>
             </thead>
             <tbody class="text-body-sm font-body-sm text-on-surface">
+            <?php if (empty($users)): ?>
+            <tr><td colspan="7" class="p-table-cell-padding text-on-surface-variant">Tidak ada user yang cocok dengan filter.</td></tr>
+            <?php endif; ?>
             <?php foreach ($users as $user): ?>
             <tr class="h-[48px] border-b border-outline-variant hover:bg-surface-container-low transition-colors">
                 <td class="p-table-cell-padding font-medium"><?= esc($user['name']) ?></td>
