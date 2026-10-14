@@ -218,19 +218,13 @@ class LinkController extends BaseController
 
         (new AuditLogger())->log(session()->get('user_id'), 'add_tiktok_link', 'tiktok_link', $linkId, ['url' => $data['url']]);
 
-        $successMessage = 'Link TikTok berhasil ditambahkan.';
-
-        try {
-            $link = $linkModel->find($linkId);
-            (new TikTokTrackingService(new ScrapeTikTokDataSource()))->syncLink($link);
-            $linkModel->touchLastSynced($linkId);
-            $successMessage .= ' Metrics awal berhasil diambil.';
-        } catch (TikTokDataSourceException $e) {
-            log_message('error', "[tiktok/links/create] scrape gagal untuk link #{$linkId}: {$e}");
-            $successMessage .= ' Namun scrape metrics gagal: ' . $e->getMessage();
-        }
-
-        session()->setFlashdata('success', $successMessage);
+        // No synchronous scrape here — the scraper call can legitimately take
+        // up to ~2 minutes (see ScrapeTikTokDataSource), which would block
+        // this request and surface a raw timeout to the admin. The
+        // snapshot:tiktok cron picks up every active link on its own
+        // schedule, so the first metrics just arrive on its next run, same
+        // as for any other link added via "Simpan ke tracking" or seeding.
+        session()->setFlashdata('success', 'Link TikTok berhasil ditambahkan. Metrik akan diambil otomatis pada sinkronisasi terjadwal berikutnya.');
 
         return redirect()->to('/tiktok/links');
     }
